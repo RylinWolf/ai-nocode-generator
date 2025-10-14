@@ -1,8 +1,11 @@
 package com.wolfhouse.yuaicodemother.exception;
 
+import lombok.Getter;
+
 /**
  * @author linexsong
  */
+@Getter
 public class BusinessException extends RuntimeException {
     private final int code;
 
