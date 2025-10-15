@@ -3,7 +3,7 @@ import BasicLayout from './layouts/BasicLayout.vue'
 </script>
 
 <template>
-  <BasicLayout/>
+  <BasicLayout />
 </template>
 
 <style>
@@ -20,6 +20,7 @@ body,
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 </style>
