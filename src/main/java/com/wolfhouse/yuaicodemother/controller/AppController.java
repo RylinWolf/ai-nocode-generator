@@ -7,6 +7,7 @@ import com.wolfhouse.yuaicodemother.common.BaseResponse;
 import com.wolfhouse.yuaicodemother.common.DeleteRequest;
 import com.wolfhouse.yuaicodemother.common.ResultUtils;
 import com.wolfhouse.yuaicodemother.common.annotation.AuthCheck;
+import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import com.wolfhouse.yuaicodemother.common.constant.UserConstant;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
@@ -18,6 +19,7 @@ import com.wolfhouse.yuaicodemother.model.dto.AppUpdateRequest;
 import com.wolfhouse.yuaicodemother.model.entity.App;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
+import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;
 import com.wolfhouse.yuaicodemother.service.AppService;
 import com.wolfhouse.yuaicodemother.service.UserService;
@@ -25,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.wolfhouse.yuaicodemother.model.entity.table.AppTableDef.APP;
@@ -67,7 +70,10 @@ public class AppController {
         app.setUserId(loginUser.getId());
         // 暂时为 initPrompt 的前 12 位
         app.setAppName(app.getInitPrompt()
-                          .substring(0, 12));
+                          .length() > 12 ?
+                       app.getInitPrompt()
+                          .substring(0, 12) :
+                       app.getInitPrompt());
         // 文件生成模式
         app.setCodeGenType(CodeGenTypeEnum.MULTI_FILE.getValue());
 
@@ -108,7 +114,7 @@ public class AppController {
         App app = new App();
         app.setId(id);
         app.setAppName(appUpdateRequest.getAppName());
-
+        app.setEditTime(LocalDateTime.now());
         // 参数校验
         appService.validApp(app, false);
 
@@ -139,9 +145,9 @@ public class AppController {
         App oldApp = appService.getById(id);
         ThrowUtils.throwIf(oldApp == null, ErrorCode.NOT_FOUND_ERROR);
 
-        // 仅本人可删除
+        // 仅本人或管理员可删除
         if (!oldApp.getUserId()
-                   .equals(loginUser.getId())) {
+                   .equals(loginUser.getId()) && !UserRoleEnum.ADMIN.equals(loginUser.getUserRole())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
 
@@ -160,7 +166,7 @@ public class AppController {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         App app = appService.getById(id);
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
-        return ResultUtils.success(BeanUtil.copyProperties(app, AppVO.class));
+        return ResultUtils.success(appService.getAppVo(app));
     }
 
     /**
@@ -186,6 +192,8 @@ public class AppController {
         if (pageSize > 20) {
             pageSize = 20;
         }
+        // 只查询当前用户的应用
+        appQueryRequest.setUserId(loginUser.getId());
 
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize),
                                             appService.getQueryWrapper(appQueryRequest));
@@ -214,9 +222,9 @@ public class AppController {
             pageSize = 20;
         }
 
-        // 查询精选应用（优先级大于 0）
+        // 查询精选应用（优先级大于 99）
         QueryWrapper queryWrapper = appService.getQueryWrapper(appQueryRequest);
-        queryWrapper.and(APP.PRIORITY.gt(0));
+        queryWrapper.and(APP.PRIORITY.ge(AppConstant.GOOD_APP_PRIORITY));
 
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize), queryWrapper);
 
@@ -236,7 +244,7 @@ public class AppController {
      * @param deleteRequest 删除请求
      * @return 是否成功
      */
-    @PostMapping("/delete/admin")
+    @PostMapping("/admin/delete")
     @AuthCheck(hasRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteAppByAdmin(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -252,18 +260,22 @@ public class AppController {
      * @param appUpdateByAdminRequest 更新请求
      * @return 是否成功
      */
-    @PostMapping("/update/admin")
+    @PostMapping("/admin/update")
     @AuthCheck(hasRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateAppByAdmin(@RequestBody AppUpdateByAdminRequest appUpdateByAdminRequest) {
         if (appUpdateByAdminRequest == null || appUpdateByAdminRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
+        // 判断是否存在
+        App oldApp = appService.getById(appUpdateByAdminRequest.getId());
+        ThrowUtils.throwIf(oldApp == null, ErrorCode.NOT_FOUND_ERROR);
+
         App app = new App();
         BeanUtil.copyProperties(appUpdateByAdminRequest, app);
 
-        // 参数校验
-        appService.validApp(app, false);
+        // 设置编辑时间
+        app.setEditTime(LocalDateTime.now());
 
         boolean result = appService.updateById(app);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -276,7 +288,7 @@ public class AppController {
      * @param appQueryRequest 查询请求
      * @return 分页结果
      */
-    @PostMapping("/list/page/vo/admin")
+    @PostMapping("/admin/list/page/vo")
     @AuthCheck(hasRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<AppVO>> listAppVoByPageAdmin(@RequestBody AppQueryRequest appQueryRequest) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
@@ -299,7 +311,7 @@ public class AppController {
      * @param id 应用 id
      * @return 应用详情
      */
-    @GetMapping("/get")
+    @GetMapping("/admin/get/vo")
     @AuthCheck(hasRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<App> getAppById(long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);

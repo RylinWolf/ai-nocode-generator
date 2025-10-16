@@ -12,6 +12,7 @@ import com.wolfhouse.yuaicodemother.model.dto.UserQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import com.wolfhouse.yuaicodemother.model.vo.UserLoginVo;
+import com.wolfhouse.yuaicodemother.model.vo.UserVO;
 import com.wolfhouse.yuaicodemother.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
@@ -148,5 +149,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public String getEncryptPassword(String password) {
         final String salt = "RYLIN";
         return DigestUtils.md5DigestAsHex((password + salt).getBytes());
+    }
+
+    @Override
+    public UserVO getUserVo(User user) {
+        return BeanUtil.copyProperties(user, UserVO.class);
     }
 }

@@ -4,6 +4,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.wolfhouse.yuaicodemother.model.dto.AppQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.App;
+import com.wolfhouse.yuaicodemother.model.vo.AppVO;
+
+import java.util.List;
 
 /**
  * 应用 服务层。
@@ -27,4 +30,8 @@ public interface AppService extends IService<App> {
      * @param add 是否为创建
      */
     void validApp(App app, boolean add);
+
+    AppVO getAppVo(App app);
+
+    List<AppVO> getAppVOList(List<App> appList);
 }
