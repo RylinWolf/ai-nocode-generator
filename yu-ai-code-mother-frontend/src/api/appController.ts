@@ -27,12 +27,12 @@ export async function deleteAppByAdmin(body: API.DeleteRequest, options?: { [key
 }
 
 /** 此处后端没有提供注释 GET /app/admin/get/vo */
-export async function getAppVoByIdByAdmin(
+export async function getAppById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAppVOByIdByAdminParams,
+  params: API.getAppByIdParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.BaseResponseAppVO>('/app/admin/get/vo', {
+  return request<API.BaseResponseApp>('/app/admin/get/vo', {
     method: 'GET',
     params: {
       ...params,
@@ -42,7 +42,7 @@ export async function getAppVoByIdByAdmin(
 }
 
 /** 此处后端没有提供注释 POST /app/admin/list/page/vo */
-export async function listAppVoByPageByAdmin(
+export async function listAppVoByPageAdmin(
   body: API.AppQueryRequest,
   options?: { [key: string]: any }
 ) {
@@ -58,7 +58,7 @@ export async function listAppVoByPageByAdmin(
 
 /** 此处后端没有提供注释 POST /app/admin/update */
 export async function updateAppByAdmin(
-  body: API.AppAdminUpdateRequest,
+  body: API.AppUpdateByAdminRequest,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseBoolean>('/app/admin/update', {
@@ -113,7 +113,7 @@ export async function deployApp(body: API.AppDeployRequest, options?: { [key: st
 /** 此处后端没有提供注释 GET /app/get/vo */
 export async function getAppVoById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAppVOByIdParams,
+  params: API.getAppVoByIdParams,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseAppVO>('/app/get/vo', {
@@ -126,7 +126,7 @@ export async function getAppVoById(
 }
 
 /** 此处后端没有提供注释 POST /app/good/list/page/vo */
-export async function listGoodAppVoByPage(
+export async function listFeaturedAppVoByPage(
   body: API.AppQueryRequest,
   options?: { [key: string]: any }
 ) {
