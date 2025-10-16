@@ -1,49 +1,30 @@
 <template>
   <a-layout class="basic-layout">
-    <GlobalHeader/>
-    <a-layout-content class="content">
-      <div class="content-wrapper">
-        <RouterView/>
-      </div>
+    <!-- 顶部导航栏 -->
+    <GlobalHeader />
+    <!-- 主要内容区域 -->
+    <a-layout-content class="main-content">
+      <router-view />
     </a-layout-content>
-    <GlobalFooter/>
+    <!-- 底部版权信息 -->
+    <GlobalFooter />
   </a-layout>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalFooter from '@/components/GlobalFooter.vue'
-import {RouterView} from 'vue-router'
 </script>
 
 <style scoped>
 .basic-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background: none;
 }
 
-.content {
-  flex: 1;
-  padding: 24px;
-  background: #f0f2f5;
-}
-
-.content-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
+.main-content {
   width: 100%;
-}
-
-@media (max-width: 768px) {
-  .content {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 576px) {
-  .content {
-    padding: 12px;
-  }
+  padding: 0;
+  background: none;
+  margin: 0;
 }
 </style>

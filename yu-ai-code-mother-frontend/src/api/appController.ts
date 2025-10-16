@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import request from '@/api/request.ts'
+import request from '@/request'
 
 /** 此处后端没有提供注释 POST /app/add */
 export async function addApp(body: API.AppAddRequest, options?: { [key: string]: any }) {
@@ -27,12 +27,12 @@ export async function deleteAppByAdmin(body: API.DeleteRequest, options?: { [key
 }
 
 /** 此处后端没有提供注释 GET /app/admin/get/vo */
-export async function getAppById(
+export async function getAppVoByIdByAdmin(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAppByIdParams,
+  params: API.getAppVOByIdByAdminParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.BaseResponseApp>('/app/admin/get/vo', {
+  return request<API.BaseResponseAppVO>('/app/admin/get/vo', {
     method: 'GET',
     params: {
       ...params,
@@ -42,7 +42,7 @@ export async function getAppById(
 }
 
 /** 此处后端没有提供注释 POST /app/admin/list/page/vo */
-export async function listAppVoByPageAdmin(
+export async function listAppVoByPageByAdmin(
   body: API.AppQueryRequest,
   options?: { [key: string]: any }
 ) {
@@ -58,7 +58,7 @@ export async function listAppVoByPageAdmin(
 
 /** 此处后端没有提供注释 POST /app/admin/update */
 export async function updateAppByAdmin(
-  body: API.AppUpdateByAdminRequest,
+  body: API.AppAdminUpdateRequest,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseBoolean>('/app/admin/update', {
@@ -113,7 +113,7 @@ export async function deployApp(body: API.AppDeployRequest, options?: { [key: st
 /** 此处后端没有提供注释 GET /app/get/vo */
 export async function getAppVoById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAppVoByIdParams,
+  params: API.getAppVOByIdParams,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseAppVO>('/app/get/vo', {
@@ -125,12 +125,12 @@ export async function getAppVoById(
   })
 }
 
-/** 此处后端没有提供注释 POST /app/list/page/vo */
-export async function listMyAppVoByPage(
+/** 此处后端没有提供注释 POST /app/good/list/page/vo */
+export async function listGoodAppVoByPage(
   body: API.AppQueryRequest,
   options?: { [key: string]: any }
 ) {
-  return request<API.BaseResponsePageAppVO>('/app/list/page/vo', {
+  return request<API.BaseResponsePageAppVO>('/app/good/list/page/vo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -140,12 +140,12 @@ export async function listMyAppVoByPage(
   })
 }
 
-/** 此处后端没有提供注释 POST /app/list/page/vo/featured */
-export async function listFeaturedAppVoByPage(
+/** 此处后端没有提供注释 POST /app/my/list/page/vo */
+export async function listMyAppVoByPage(
   body: API.AppQueryRequest,
   options?: { [key: string]: any }
 ) {
-  return request<API.BaseResponsePageAppVO>('/app/list/page/vo/featured', {
+  return request<API.BaseResponsePageAppVO>('/app/my/list/page/vo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

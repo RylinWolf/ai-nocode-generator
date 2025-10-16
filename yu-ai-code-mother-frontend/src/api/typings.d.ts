@@ -1,22 +1,13 @@
 declare namespace API {
-  type App = {
+  type AppAddRequest = {
+    initPrompt?: string
+  }
+
+  type AppAdminUpdateRequest = {
     id?: number
     appName?: string
     cover?: string
-    initPrompt?: string
-    codeGenType?: string
-    deployKey?: string
-    deployedTime?: string
     priority?: number
-    userId?: number
-    editTime?: string
-    createTime?: string
-    updateTime?: string
-    isDelete?: number
-  }
-
-  type AppAddRequest = {
-    initPrompt?: string
   }
 
   type AppDeployRequest = {
@@ -38,13 +29,6 @@ declare namespace API {
     userId?: number
   }
 
-  type AppUpdateByAdminRequest = {
-    id?: number
-    appName?: string
-    cover?: string
-    priority?: number
-  }
-
   type AppUpdateRequest = {
     id?: number
     appName?: string
@@ -61,13 +45,8 @@ declare namespace API {
     priority?: number
     userId?: number
     createTime?: string
+    updateTime?: string
     user?: UserVO
-  }
-
-  type BaseResponseApp = {
-    code?: number
-    data?: App
-    message?: string
   }
 
   type BaseResponseAppVO = {
@@ -79,6 +58,12 @@ declare namespace API {
   type BaseResponseBoolean = {
     code?: number
     data?: boolean
+    message?: string
+  }
+
+  type BaseResponseLoginUserVO = {
+    code?: number
+    data?: LoginUserVO
     message?: string
   }
 
@@ -112,12 +97,6 @@ declare namespace API {
     message?: string
   }
 
-  type BaseResponseUserLoginVo = {
-    code?: number
-    data?: UserLoginVo
-    message?: string
-  }
-
   type BaseResponseUserVO = {
     code?: number
     data?: UserVO
@@ -133,15 +112,11 @@ declare namespace API {
     id?: number
   }
 
-  type getAppByIdParams = {
+  type getAppVOByIdByAdminParams = {
     id: number
   }
 
-  type getAppVoByIdParams = {
-    id: number
-  }
-
-  type getInfoParams = {
+  type getAppVOByIdParams = {
     id: number
   }
 
@@ -149,25 +124,23 @@ declare namespace API {
     id: number
   }
 
-  type getUserVoByIdParams = {
+  type getUserVOByIdParams = {
     id: number
+  }
+
+  type LoginUserVO = {
+    id?: number
+    userAccount?: string
+    userName?: string
+    userAvatar?: string
+    userProfile?: string
+    userRole?: string
+    createTime?: string
+    updateTime?: string
   }
 
   type PageAppVO = {
     records?: AppVO[]
-    pageNumber?: number
-    pageSize?: number
-    totalPage?: number
-    totalRow?: number
-    optimizeCountQuery?: boolean
-  }
-
-  type pageParams = {
-    page: PageUser
-  }
-
-  type PageUser = {
-    records?: User[]
     pageNumber?: number
     pageSize?: number
     totalPage?: number
@@ -184,10 +157,6 @@ declare namespace API {
     optimizeCountQuery?: boolean
   }
 
-  type removeParams = {
-    id: number
-  }
-
   type ServerSentEventString = true
 
   type serveStaticResourceParams = {
@@ -201,9 +170,10 @@ declare namespace API {
     userName?: string
     userAvatar?: string
     userProfile?: string
-    userRole?: 'user' | 'admin'
+    userRole?: string
     editTime?: string
     createTime?: string
+    updateTime?: string
     isDelete?: number
   }
 
@@ -218,15 +188,6 @@ declare namespace API {
   type UserLoginRequest = {
     userAccount?: string
     userPassword?: string
-  }
-
-  type UserLoginVo = {
-    id?: number
-    userAccount?: string
-    userName?: string
-    userAvatar?: string
-    userProfile?: string
-    userRole?: 'user' | 'admin'
   }
 
   type UserQueryRequest = {

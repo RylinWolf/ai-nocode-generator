@@ -1,20 +1,26 @@
 <template>
   <a-layout-header class="header">
-    <a-flex align="center" class="header-content" justify="space-between">
-      <a-space :size="24" align="center" class="left-section">
-        <img alt="logo" class="logo" src="@/assets/logo.png" />
-        <a-typography-title :level="3" class="title">
-          {{ APP_TITLE }}
-        </a-typography-title>
+    <a-row :wrap="false">
+      <!-- 左侧：Logo和标题 -->
+      <a-col flex="200px">
+        <RouterLink to="/">
+          <div class="header-left">
+            <img alt="Logo" class="logo" src="@/assets/logo.png" />
+            <h1 class="site-title">Ai 应用生成</h1>
+          </div>
+        </RouterLink>
+      </a-col>
+      <!-- 中间：导航菜单 -->
+      <a-col flex="auto">
         <a-menu
           v-model:selectedKeys="selectedKeys"
           :items="menuItems"
-          class="menu"
           mode="horizontal"
           @click="handleMenuClick"
         />
-      </a-space>
-      <a-space class="right-section">
+      </a-col>
+      <!-- 右侧：用户操作区域 -->
+      <a-col>
         <div class="user-login-status">
           <div v-if="loginUserStore.loginUser.id">
             <a-dropdown>
@@ -34,36 +40,28 @@
           </div>
           <div v-else>
             <a-button href="/user/login" type="primary">登录</a-button>
-            <a-button href="/user/register" type="primary">注册</a-button>
           </div>
         </div>
-      </a-space>
-    </a-flex>
+      </a-col>
+    </a-row>
   </a-layout-header>
 </template>
 
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
+import { useLoginUserStore } from '@/stores/loginUser.ts'
+import { userLogout } from '@/api/userController.ts'
 import { LogoutOutlined, HomeOutlined } from '@ant-design/icons-vue'
 
-// JS 中引入 Store
-import { useLoginUserStore } from '@/stores/loginUser.ts'
-import { login, logout } from '@/service/api/userController.ts'
-import checkAccess from '@/access/checkAccess.ts'
 const loginUserStore = useLoginUserStore()
-
-// 常量定义
-const APP_TITLE = 'AI 代码生成器'
-
 const router = useRouter()
-const route = useRoute()
-
+// 当前选中菜单
 const selectedKeys = ref<string[]>(['/'])
-// 监听路由变化
-router.afterEach((to) => {
-  selectedKeys.value = [(to.path as string) || '/']
+// 监听路由变化，更新当前选中菜单
+router.afterEach((to, from, next) => {
+  selectedKeys.value = [to.path]
 })
 
 // 菜单配置项
@@ -93,7 +91,6 @@ const originItems = [
 
 // 过滤菜单项
 const filterMenus = (menus = [] as MenuProps['items']) => {
-  // 过滤菜单项
   return menus?.filter((menu) => {
     const menuKey = menu?.key as string
     if (menuKey?.startsWith('/admin')) {
@@ -109,14 +106,19 @@ const filterMenus = (menus = [] as MenuProps['items']) => {
 // 展示在菜单的路由数组
 const menuItems = computed<MenuProps['items']>(() => filterMenus(originItems))
 
-const handleMenuClick = ({ key }: { key: string }) => {
+// 处理菜单点击
+const handleMenuClick: MenuProps['onClick'] = (e) => {
+  const key = e.key as string
   selectedKeys.value = [key]
-  router.push({ path: key })
+  // 跳转到对应页面
+  if (key.startsWith('/')) {
+    router.push(key)
+  }
 }
 
-// 用户注销
+// 退出登录
 const doLogout = async () => {
-  const res = await logout()
+  const res = await userLogout()
   if (res.data.code === 0) {
     loginUserStore.setLoginUser({
       userName: '未登录',
@@ -132,44 +134,27 @@ const doLogout = async () => {
 <style scoped>
 .header {
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 999;
 }
 
-.header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  height: 64px;
-}
-
-.left-section {
-  width: auto;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo {
-  height: 40px;
-  width: auto;
+  height: 48px;
+  width: 48px;
 }
 
-.title {
+.site-title {
+  margin: 0;
+  font-size: 18px;
   color: #1890ff;
-  margin: 0 !important;
-  white-space: nowrap;
 }
 
-.menu {
-  flex-grow: 1;
-  border-bottom: none;
-  line-height: 64px;
-  width: auto;
-}
-
-@media (max-width: 768px) {
-  .title {
-    font-size: 16px;
-  }
+.ant-menu-horizontal {
+  border-bottom: none !important;
 }
 </style>

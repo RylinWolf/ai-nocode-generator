@@ -1,37 +1,37 @@
 <template>
   <a-layout-footer class="footer">
     <div class="footer-content">
-      原创 程序员鱼皮，重构 by
-      <a href="https://wolfblog.cn" rel="noopener noreferrer" target="_blank">Rylin</a>
+      <p class="copyright">
+        <a
+          class="author-link"
+          href="https://www.codefather.cn"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          编程导航原创项目 by 程序员鱼皮
+        </a>
+      </p>
     </div>
   </a-layout-footer>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+// 无需额外的响应式数据
+</script>
 
 <style scoped>
 .footer {
-  background: #f0f2f5;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
   text-align: center;
-  padding: 24px 50px;
-  position: sticky;
-  bottom: 0;
-  width: 100%;
+  padding: 20px;
+  margin-top: 40px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
 }
 
-.footer-content {
-  color: rgba(0, 0, 0, 0.65);
+.copyright {
+  margin: 0;
+  color: #666;
   font-size: 14px;
-}
-
-.footer-content a {
-  color: #1890ff;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer-content a:hover {
-  color: #40a9ff;
-  text-decoration: underline;
 }
 </style>

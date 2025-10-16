@@ -1,5 +1,5 @@
-<script lang="ts" setup>
-import BasicLayout from './layouts/BasicLayout.vue'
+<script setup lang="ts">
+import BasicLayout from '@/layouts/BasicLayout.vue'
 </script>
 
 <template>
@@ -7,20 +7,23 @@ import BasicLayout from './layouts/BasicLayout.vue'
 </template>
 
 <style>
+/* 全局样式优化 */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-html,
-body,
-#app {
-  height: 100%;
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+html {
+  overflow-x: hidden;
 }
 </style>
