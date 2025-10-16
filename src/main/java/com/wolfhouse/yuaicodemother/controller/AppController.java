@@ -225,7 +225,7 @@ public class AppController {
      * @param request         请求
      * @return 分页结果
      */
-    @PostMapping("/list/page/vo")
+    @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<AppVO>> listMyAppVoByPage(@RequestBody AppQueryRequest appQueryRequest,
                                                        HttpServletRequest request) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
@@ -248,7 +248,7 @@ public class AppController {
                                             appService.getQueryWrapper(appQueryRequest));
 
         Page<AppVO> appVoPage = new Page<>(pageNum, pageSize, appPage.getTotalRow());
-        List<AppVO> appVoList = BeanUtil.copyToList(appPage.getRecords(), AppVO.class);
+        List<AppVO> appVoList = appService.getAppVOList(appPage.getRecords());
         appVoPage.setRecords(appVoList);
         return ResultUtils.success(appVoPage);
     }
@@ -259,7 +259,7 @@ public class AppController {
      * @param appQueryRequest 查询请求
      * @return 分页结果
      */
-    @PostMapping("/list/page/vo/featured")
+    @PostMapping("/good/list/page/vo")
     public BaseResponse<Page<AppVO>> listFeaturedAppVoByPage(@RequestBody AppQueryRequest appQueryRequest) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
 
@@ -278,7 +278,7 @@ public class AppController {
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize), queryWrapper);
 
         Page<AppVO> appVoPage = new Page<>(pageNum, pageSize, appPage.getTotalRow());
-        List<AppVO> appVoList = BeanUtil.copyToList(appPage.getRecords(), AppVO.class);
+        List<AppVO> appVoList = appService.getAppVOList(appPage.getRecords());
         appVoPage.setRecords(appVoList);
         return ResultUtils.success(appVoPage);
     }

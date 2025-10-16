@@ -52,7 +52,7 @@ public class UserController {
         return ResultUtils.success(userLoginVo);
     }
 
-    @GetMapping("/login")
+    @GetMapping("/get/login")
     public BaseResponse<UserLoginVo> getLoginUser(HttpServletRequest httpServletRequest) {
         return ResultUtils.success(BeanUtil.copyProperties(userService.getLoginUser(httpServletRequest),
                                                            UserLoginVo.class));
