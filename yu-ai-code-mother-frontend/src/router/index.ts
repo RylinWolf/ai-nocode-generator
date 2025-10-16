@@ -3,6 +3,9 @@ import HomePage from '@/pages/HomePage.vue'
 import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
+import AppManagePage from '@/pages/admin/AppManagePage.vue'
+import AppChatPage from '@/pages/app/AppChatPage.vue'
+import AppEditPage from '@/pages/app/AppEditPage.vue'
 import ACCESS_ENUM from '@/access/accessEnum.ts'
 
 const router = createRouter({
@@ -30,6 +33,24 @@ const router = createRouter({
       meta: {
         access: ACCESS_ENUM.ADMIN,
       },
+    },
+    {
+      path: '/admin/appManage',
+      name: 'adminAppManage',
+      component: AppManagePage,
+      meta: {
+        access: ACCESS_ENUM.ADMIN,
+      },
+    },
+    {
+      path: '/app/chat/:id',
+      name: 'appChat',
+      component: AppChatPage,
+    },
+    {
+      path: '/app/edit/:id',
+      name: 'appEdit',
+      component: AppEditPage,
     },
   ],
 })
