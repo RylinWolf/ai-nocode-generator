@@ -4,7 +4,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.wolfhouse.yuaicodemother.model.dto.app.AppQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.App;
+import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -34,4 +36,23 @@ public interface AppService extends IService<App> {
     AppVO getAppVo(App app);
 
     List<AppVO> getAppVOList(List<App> appList);
+
+    /**
+     * 通过对话生成应用代码
+     *
+     * @param appId       应用 ID
+     * @param userMessage 提示词
+     * @param loginUser   登录用户
+     * @return 响应流
+     */
+    Flux<String> chatToGenCode(Long appId, String userMessage, User loginUser);
+
+    /**
+     * 部署指定的应用。
+     *
+     * @param appId     应用的唯一标识 ID
+     * @param loginUser 当前登录用户的信息
+     * @return 部署的结果信息
+     */
+    String deployApp(Long appId, User loginUser);
 }

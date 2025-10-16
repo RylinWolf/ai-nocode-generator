@@ -30,16 +30,16 @@ public class AiCodeGeneratorFacade {
      * @param userMessage 用户提供的输入信息，用于描述需要生成的代码内容。
      * @return 返回保存生成代码的文件对象。
      */
-    public File generateAndSaveCode(String userMessage, CodeGenTypeEnum genTypeEnum) {
+    public File generateAndSaveCode(String userMessage, CodeGenTypeEnum genTypeEnum, Long appId) {
         if (genTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
         return switch (genTypeEnum) {
             case HTML -> CodeFileSaverExecutor.executeSaver(aiCodeGeneratorService.generateCode(userMessage),
-                                                            genTypeEnum);
+                                                            genTypeEnum, appId);
             case MULTI_FILE ->
                 CodeFileSaverExecutor.executeSaver(aiCodeGeneratorService.generateMultiFileCode(userMessage),
-                                                   genTypeEnum);
+                                                   genTypeEnum, appId);
             default ->
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的生成类型: " + genTypeEnum.getValue());
         };
@@ -51,15 +51,15 @@ public class AiCodeGeneratorFacade {
      * @param userMessage 用户提供的输入信息，用于描述需要生成的代码内容。
      * @return 返回保存生成代码的文件对象。
      */
-    public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum genTypeEnum) {
+    public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum genTypeEnum, Long appId) {
         if (genTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
         return switch (genTypeEnum) {
             case HTML -> processCodeStream(aiCodeGeneratorService.generateCodeStream(userMessage),
-                                           CodeGenTypeEnum.HTML);
+                                           CodeGenTypeEnum.HTML, appId);
             case MULTI_FILE -> processCodeStream(aiCodeGeneratorService.generateMultiFileCodeStream(userMessage),
-                                                 CodeGenTypeEnum.MULTI_FILE);
+                                                 CodeGenTypeEnum.MULTI_FILE, appId);
 
             default ->
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的生成类型: " + genTypeEnum.getValue());
@@ -73,7 +73,7 @@ public class AiCodeGeneratorFacade {
      * @param typeEnum   代码生成类型
      * @return 流式响应
      */
-    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum typeEnum) {
+    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum typeEnum, Long appId) {
         //  字符串拼接器，用于流式返回所有代码之后，再保存代码
         StringBuilder stringBuilder = new StringBuilder();
         return codeStream.doOnNext(stringBuilder::append)
@@ -83,7 +83,7 @@ public class AiCodeGeneratorFacade {
                                  // 使用执行器解析代码
                                  Object parsedResult = CodeParserExecutor.execute(code, typeEnum);
                                  // 使用执行器保存代码
-                                 File file = CodeFileSaverExecutor.executeSaver(parsedResult, typeEnum);
+                                 File file = CodeFileSaverExecutor.executeSaver(parsedResult, typeEnum, appId);
                                  log.info("多文件保存成功，目录为: {}", file.getAbsolutePath());
                              } catch (Exception e) {
                                  log.error("保存失败", e);

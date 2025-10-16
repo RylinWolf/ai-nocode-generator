@@ -1,10 +1,11 @@
 package com.wolfhouse.yuaicodemother.core.saver;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
+import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
 
 import java.io.File;
@@ -18,17 +19,18 @@ import java.nio.file.Path;
  */
 public abstract class AbstractCodeFileSaverTemplate<T> {
     /** 文件保存的根目录 */
-    public static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/temp/code_output/";
+    public static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
 
     /**
      * 构建文件的唯一路径（tmp/code_output/bizType_雪花 ID）
      *
      * @return 文件路径
      */
-    protected String buildUniqueDir() {
+    protected String buildUniqueDir(Long appId) {
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR);
         String bizType = getCodeType().getValue();
         String dirPath = Path.of(FILE_SAVE_ROOT_DIR,
-                                 bizType + "_" + IdUtil.getSnowflakeNextIdStr())
+                                 bizType + "_" + appId)
                              .toString();
         FileUtil.mkdir(dirPath);
         return dirPath;
@@ -42,14 +44,15 @@ public abstract class AbstractCodeFileSaverTemplate<T> {
      * 3. 调用子类的抽象方法完成实际的文件保存逻辑。
      *
      * @param result 需要保存的代码结果对象，具体类型和内容由子类根据业务场景定义。
+     * @param appId  应用 ID
      * @return 一个表示保存目录的文件对象。
      * @throws BusinessException 若输入的代码结果对象为空时抛出异常。
      */
-    public final File saveCode(T result) {
+    public final File saveCode(T result, Long appId) {
         // 验证输入
         validateInput(result);
         // 构建唯一目录
-        String baseDirPath = buildUniqueDir();
+        String baseDirPath = buildUniqueDir(appId);
         // 保存文件（具体实现交给子类）
         saveFiles(result, baseDirPath);
         // 返回文件目录对象
