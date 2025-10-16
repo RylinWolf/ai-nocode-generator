@@ -1,0 +1,93 @@
+package com.wolfhouse.yuaicodemother.core;
+
+import com.wolfhouse.yuaicodemother.ai.AiCodeGeneratorService;
+import com.wolfhouse.yuaicodemother.core.parser.CodeParserExecutor;
+import com.wolfhouse.yuaicodemother.core.saver.CodeFileSaverExecutor;
+import com.wolfhouse.yuaicodemother.exception.BusinessException;
+import com.wolfhouse.yuaicodemother.exception.ErrorCode;
+import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+
+import java.io.File;
+
+/**
+ * AI 代码生成门面类，组合代码生成和保存功能
+ *
+ * @author linexsong
+ */
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class AiCodeGeneratorFacade {
+    private final AiCodeGeneratorService aiCodeGeneratorService;
+
+    /**
+     * 根据用户提供的信息生成代码并将其保存到文件中。
+     *
+     * @param userMessage 用户提供的输入信息，用于描述需要生成的代码内容。
+     * @return 返回保存生成代码的文件对象。
+     */
+    public File generateAndSaveCode(String userMessage, CodeGenTypeEnum genTypeEnum) {
+        if (genTypeEnum == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
+        }
+        return switch (genTypeEnum) {
+            case HTML -> CodeFileSaverExecutor.executeSaver(aiCodeGeneratorService.generateCode(userMessage),
+                                                            genTypeEnum);
+            case MULTI_FILE ->
+                CodeFileSaverExecutor.executeSaver(aiCodeGeneratorService.generateMultiFileCode(userMessage),
+                                                   genTypeEnum);
+            default ->
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的生成类型: " + genTypeEnum.getValue());
+        };
+    }
+
+    /**
+     * 根据用户提供的信息生成代码并将其保存到文件中。（流式）
+     *
+     * @param userMessage 用户提供的输入信息，用于描述需要生成的代码内容。
+     * @return 返回保存生成代码的文件对象。
+     */
+    public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum genTypeEnum) {
+        if (genTypeEnum == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
+        }
+        return switch (genTypeEnum) {
+            case HTML -> processCodeStream(aiCodeGeneratorService.generateCodeStream(userMessage),
+                                           CodeGenTypeEnum.HTML);
+            case MULTI_FILE -> processCodeStream(aiCodeGeneratorService.generateMultiFileCodeStream(userMessage),
+                                                 CodeGenTypeEnum.MULTI_FILE);
+
+            default ->
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的生成类型: " + genTypeEnum.getValue());
+        };
+    }
+
+    /**
+     * 生成不同文件模式的代码并保存（流式）
+     *
+     * @param codeStream 代码流
+     * @param typeEnum   代码生成类型
+     * @return 流式响应
+     */
+    private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum typeEnum) {
+        //  字符串拼接器，用于流式返回所有代码之后，再保存代码
+        StringBuilder stringBuilder = new StringBuilder();
+        return codeStream.doOnNext(stringBuilder::append)
+                         .doOnComplete(() -> {
+                             try {
+                                 String code = stringBuilder.toString();
+                                 // 使用执行器解析代码
+                                 Object parsedResult = CodeParserExecutor.execute(code, typeEnum);
+                                 // 使用执行器保存代码
+                                 File file = CodeFileSaverExecutor.executeSaver(parsedResult, typeEnum);
+                                 log.info("多文件保存成功，目录为: {}", file.getAbsolutePath());
+                             } catch (Exception e) {
+                                 log.error("保存失败", e);
+                             }
+                         });
+    }
+}

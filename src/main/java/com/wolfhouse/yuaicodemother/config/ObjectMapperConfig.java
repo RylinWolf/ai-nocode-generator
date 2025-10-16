@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author linexsong
@@ -22,9 +23,11 @@ public class ObjectMapperConfig {
         SimpleModule module = new SimpleModule();
         module.addSerializer(Long.class, ToStringSerializer.instance);
         module.addSerializer(Long.TYPE, ToStringSerializer.instance);
-        module.addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE);
+        module.addSerializer(LocalDateTime.class,
+                             new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        module.addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE);
+        module.addDeserializer(LocalDateTime.class,
+                               new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         builder.modules(module);
         return builder.build();
     }

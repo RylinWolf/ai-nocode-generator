@@ -3,6 +3,11 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+apikey.txt
+
+### CUSTOM ###
+application-local.yaml
+temp
 
 ### STS ###
 .apt_generated
