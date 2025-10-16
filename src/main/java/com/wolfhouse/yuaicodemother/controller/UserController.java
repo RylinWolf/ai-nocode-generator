@@ -10,7 +10,7 @@ import com.wolfhouse.yuaicodemother.common.constant.UserConstant;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
-import com.wolfhouse.yuaicodemother.model.dto.*;
+import com.wolfhouse.yuaicodemother.model.dto.user.*;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.vo.UserLoginVo;
 import com.wolfhouse.yuaicodemother.model.vo.UserVO;

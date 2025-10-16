@@ -9,7 +9,7 @@ import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
 import com.wolfhouse.yuaicodemother.mapper.AppMapper;
-import com.wolfhouse.yuaicodemother.model.dto.AppQueryRequest;
+import com.wolfhouse.yuaicodemother.model.dto.app.AppQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.App;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;

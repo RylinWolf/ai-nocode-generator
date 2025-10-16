@@ -2,7 +2,7 @@ package com.wolfhouse.yuaicodemother.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.wolfhouse.yuaicodemother.model.dto.UserQueryRequest;
+import com.wolfhouse.yuaicodemother.model.dto.user.UserQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.vo.UserLoginVo;
 import com.wolfhouse.yuaicodemother.model.vo.UserVO;

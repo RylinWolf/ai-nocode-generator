@@ -8,7 +8,7 @@ import com.wolfhouse.yuaicodemother.common.constant.UserConstant;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.mapper.UserMapper;
-import com.wolfhouse.yuaicodemother.model.dto.UserQueryRequest;
+import com.wolfhouse.yuaicodemother.model.dto.user.UserQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import com.wolfhouse.yuaicodemother.model.vo.UserLoginVo;

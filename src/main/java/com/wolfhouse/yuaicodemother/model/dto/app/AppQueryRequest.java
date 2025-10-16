@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.model.dto;
+package com.wolfhouse.yuaicodemother.model.dto.app;
 
 import com.wolfhouse.yuaicodemother.common.PageRequest;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.model.dto;
+package com.wolfhouse.yuaicodemother.model.dto.user;
 
 import lombok.Data;
 
