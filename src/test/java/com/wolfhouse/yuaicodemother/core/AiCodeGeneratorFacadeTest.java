@@ -17,14 +17,14 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCode() {
-        File file = facade.generateAndSaveCode("生成一个博客页面，不超过 50 行", CodeGenTypeEnum.MULTI_FILE);
+        File file = facade.generateAndSaveCode("生成一个博客页面，不超过 50 行", CodeGenTypeEnum.MULTI_FILE, 0L);
         Assertions.assertNotNull(file);
     }
 
     @Test
     void generateAndSaveCodeStream() {
         Flux<String> codeStream = facade.generateAndSaveCodeStream("生成一个博客页面，不超过 50 行",
-                                                                   CodeGenTypeEnum.MULTI_FILE);
+                                                                   CodeGenTypeEnum.MULTI_FILE, 0L);
         List<String> result = codeStream.collectList()
                                         .block();
         Assertions.assertNotNull(result);

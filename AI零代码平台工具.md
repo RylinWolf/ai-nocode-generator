@@ -221,3 +221,37 @@ SSE 中，服务器关闭连接时，会触发 onclose 事件。但是异常中�
 - 对话记忆持久化
 - Redis 分布式 Session
 
+## 增加对话记忆能力
+
+**保存到哪？**
+
+LangChain4j 提供了对话记忆能力，能结合 Redis 持久化对话记忆。
+
+但是 Redis 内存也不是无限的，所以要设置过期时间。
+在用户对话前，先从数据库中读取历史记录到 Redis 中，Redis 为 AI 提供记忆。
+
+此外，每个应用的记忆应该是隔离的。
+
+### 方法1 内置隔离机制
+
+参考官方文档，通过在 Ai 服务接口方法中，通过 @MemoryId 指定记忆 Id。
+
+```java
+    /**
+ * 生成代码
+ *
+ * @param id          对话 ID
+ * @param userMessage 用户提示词
+ * @return 输出结果
+ */
+@SystemMessage(fromResource = "prompt/codegen-html-system-prompt.txt")
+HtmlCodeResult generateCode(@MemoryId Long id, @UserMessage String userMessage);
+```
+
+### 方法2 以 AiService 隔离
+
+为每一个 appId 会话分配一个 AiService。
+
+可以利用 Caffeine 本地缓存优化性能。
+对于相同的 appId, 通过缓存获取到对应的 AiService。
+

@@ -1,6 +1,7 @@
 package com.wolfhouse.yuaicodemother.core;
 
 import com.wolfhouse.yuaicodemother.ai.AiCodeGeneratorService;
+import com.wolfhouse.yuaicodemother.ai.AiCodeGeneratorServiceFactory;
 import com.wolfhouse.yuaicodemother.core.parser.CodeParserExecutor;
 import com.wolfhouse.yuaicodemother.core.saver.CodeFileSaverExecutor;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
@@ -22,7 +23,7 @@ import java.io.File;
 @RequiredArgsConstructor
 @Service
 public class AiCodeGeneratorFacade {
-    private final AiCodeGeneratorService aiCodeGeneratorService;
+    private final AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
 
     /**
      * 根据用户提供的信息生成代码并将其保存到文件中。
@@ -34,6 +35,8 @@ public class AiCodeGeneratorFacade {
         if (genTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
+        // 根据 appId 获取响应的 Ai服务
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (genTypeEnum) {
             case HTML -> CodeFileSaverExecutor.executeSaver(aiCodeGeneratorService.generateCode(userMessage),
                                                             genTypeEnum, appId);
@@ -55,6 +58,9 @@ public class AiCodeGeneratorFacade {
         if (genTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
+        // 根据 appId 获取响应的 Ai服务
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+
         return switch (genTypeEnum) {
             case HTML -> processCodeStream(aiCodeGeneratorService.generateCodeStream(userMessage),
                                            CodeGenTypeEnum.HTML, appId);

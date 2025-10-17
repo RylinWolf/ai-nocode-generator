@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ServeDeployService {
 
-    private static final String CODE_BASE_DIR = "/tmp/deploy";
+    private static final String CODE_BASE_DIR = "/temp/deploy";
     private static final int SERVE_PORT = 3000;
     private static Process serveProcess;
 

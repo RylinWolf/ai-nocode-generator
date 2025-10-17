@@ -12,6 +12,7 @@ public interface AiCodeGeneratorService {
     /**
      * 生成代码
      *
+     * @param id          对话 ID
      * @param userMessage 用户提示词
      * @return 输出结果
      */

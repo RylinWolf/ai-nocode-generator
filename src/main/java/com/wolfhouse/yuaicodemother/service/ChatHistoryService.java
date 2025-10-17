@@ -6,6 +6,7 @@ import com.mybatisflex.core.service.IService;
 import com.wolfhouse.yuaicodemother.model.dto.chathistory.ChatHistoryQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.ChatHistory;
 import com.wolfhouse.yuaicodemother.model.entity.User;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
 import java.time.LocalDateTime;
 
@@ -34,9 +35,28 @@ public interface ChatHistoryService extends IService<ChatHistory> {
      */
     boolean deleteByAppId(Long appId);
 
+    /**
+     * 分页查询指定应用的对话历史记录。
+     *
+     * @param appId          应用的唯一标识 ID
+     * @param pageSize       每页显示的记录数
+     * @param lastCreateTime 上次查询的最后一条记录的创建时间，用于分页查询
+     * @param loginUser      当前登录用户的信息，用于权限验证
+     * @return 包含对话历史记录的分页结果
+     */
     Page<ChatHistory> listAppChatHistoryByPage(Long appId, int pageSize,
                                                LocalDateTime lastCreateTime,
                                                User loginUser);
+
+    /**
+     * 加载指定应用的聊天历史记录到内存。
+     *
+     * @param appId      应用的唯一标识 ID
+     * @param chatMemory 聊天窗口内存，用于存储加载的聊天记录
+     * @param maxCount   最大加载记录数，限制加载到内存中的记录数量
+     * @return 实际加载的聊天记录数量
+     */
+    int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount);
 
     /**
      * 构建查询条件
