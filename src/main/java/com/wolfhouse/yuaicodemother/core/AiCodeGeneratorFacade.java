@@ -36,7 +36,8 @@ public class AiCodeGeneratorFacade {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
         // 根据 appId 获取响应的 Ai服务
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,
+                                                                                                                genTypeEnum);
         return switch (genTypeEnum) {
             case HTML -> CodeFileSaverExecutor.executeSaver(aiCodeGeneratorService.generateCode(userMessage),
                                                             genTypeEnum, appId);
@@ -59,13 +60,17 @@ public class AiCodeGeneratorFacade {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
         // 根据 appId 获取响应的 Ai服务
-        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,
+                                                                                                                genTypeEnum);
 
         return switch (genTypeEnum) {
             case HTML -> processCodeStream(aiCodeGeneratorService.generateCodeStream(userMessage),
                                            CodeGenTypeEnum.HTML, appId);
             case MULTI_FILE -> processCodeStream(aiCodeGeneratorService.generateMultiFileCodeStream(userMessage),
                                                  CodeGenTypeEnum.MULTI_FILE, appId);
+            case VUE_PROJECT ->
+                processCodeStream(aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage),
+                                  CodeGenTypeEnum.MULTI_FILE, appId);
 
             default ->
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的生成类型: " + genTypeEnum.getValue());
