@@ -1,12 +1,19 @@
 package com.wolfhouse.yuaicodemother.core;
 
+import cn.hutool.json.JSONUtil;
 import com.wolfhouse.yuaicodemother.ai.AiCodeGeneratorService;
 import com.wolfhouse.yuaicodemother.ai.AiCodeGeneratorServiceFactory;
+import com.wolfhouse.yuaicodemother.ai.model.message.AiResponseMessage;
+import com.wolfhouse.yuaicodemother.ai.model.message.ToolExecutedMessage;
+import com.wolfhouse.yuaicodemother.ai.model.message.ToolRequestMessage;
 import com.wolfhouse.yuaicodemother.core.parser.CodeParserExecutor;
 import com.wolfhouse.yuaicodemother.core.saver.CodeFileSaverExecutor;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.service.tool.ToolExecution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -68,14 +75,50 @@ public class AiCodeGeneratorFacade {
                                            CodeGenTypeEnum.HTML, appId);
             case MULTI_FILE -> processCodeStream(aiCodeGeneratorService.generateMultiFileCodeStream(userMessage),
                                                  CodeGenTypeEnum.MULTI_FILE, appId);
-            case VUE_PROJECT ->
-                processCodeStream(aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage),
-                                  CodeGenTypeEnum.MULTI_FILE, appId);
+            case VUE_PROJECT -> {
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
+                yield processCodeStream(processTokenStream(tokenStream),
+                                        CodeGenTypeEnum.MULTI_FILE, appId);
+            }
 
             default ->
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的生成类型: " + genTypeEnum.getValue());
         };
     }
+
+    /**
+     * 处理 TokenStream 对象并将其转换为字符串流。
+     * （适配器模式）
+     *
+     * @param tokenStream 输入的 TokenStream 对象。
+     * @return 处理后的字符串流。
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+            tokenStream.onPartialResponse((String partialResponse) -> {
+                           AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
+                           sink.next(JSONUtil.toJsonStr(aiResponseMessage));
+                       })
+                       .onPartialToolExecutionRequest((index, toolExecutionRequest) -> {
+                           ToolRequestMessage toolRequestMessage = new ToolRequestMessage(toolExecutionRequest);
+                           sink.next(JSONUtil.toJsonStr(toolRequestMessage));
+                       })
+                       .onToolExecuted((ToolExecution toolExecution) -> {
+                           ToolExecutedMessage toolExecutedMessage = new ToolExecutedMessage(toolExecution);
+                           sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
+                       })
+                       .onCompleteResponse((ChatResponse response) -> {
+                           sink.complete();
+                       })
+                       .onError((Throwable error) -> {
+                           log.error(error.getMessage(), error);
+                           sink.error(error);
+                       })
+                       // 开始监听
+                       .start();
+        });
+    }
+
 
     /**
      * 生成不同文件模式的代码并保存（流式）
@@ -95,7 +138,7 @@ public class AiCodeGeneratorFacade {
                                  Object parsedResult = CodeParserExecutor.execute(code, typeEnum);
                                  // 使用执行器保存代码
                                  File file = CodeFileSaverExecutor.executeSaver(parsedResult, typeEnum, appId);
-                                 log.info("多文件保存成功，目录为: {}", file.getAbsolutePath());
+                                 log.info("文件保存成功，目录为: {}", file.getAbsolutePath());
                              } catch (Exception e) {
                                  log.error("保存失败", e);
                              }

@@ -124,7 +124,7 @@ public class AppController {
                           .substring(0, 12) :
                        app.getInitPrompt());
         // 文件生成模式
-        app.setCodeGenType(CodeGenTypeEnum.MULTI_FILE.getValue());
+        app.setCodeGenType(CodeGenTypeEnum.VUE_PROJECT.getValue());
 
         // 保存
         boolean result = appService.save(app);

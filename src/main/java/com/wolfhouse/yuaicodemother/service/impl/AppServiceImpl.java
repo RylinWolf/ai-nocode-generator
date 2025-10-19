@@ -9,6 +9,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import com.wolfhouse.yuaicodemother.core.AiCodeGeneratorFacade;
+import com.wolfhouse.yuaicodemother.core.handler.StreamHandlerExecutor;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
@@ -53,6 +54,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private final UserService userService;
     private final ChatHistoryService chatHistoryService;
     private final AiCodeGeneratorFacade aiCodeGeneratorFacade;
+    private final StreamHandlerExecutor streamHandlerExecutor;
 
     @Override
     public QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest) {
@@ -166,24 +168,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         // 调用 AI 生成
         Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
 
-        // 收集 AI 响应的内容，完成后保存记录到对话历史
-        StringBuilder responseBuilder = new StringBuilder();
-        return contentFlux.doOnNext(responseBuilder::append)
-                          .doOnComplete(() -> {
-                              // 流式返回完成后，保存 AI 消息到对话历史
-                              chatHistoryService.addChatMessage(appId,
-                                                                responseBuilder.toString(),
-                                                                ChatHistoryMessageTypeEnum.AI.getValue(),
-                                                                loginUser.getId());
-
-                          })
-                          .doOnError(throwable -> {
-                              // 即使失败，也要保存到数据库中
-                              chatHistoryService.addChatMessage(appId,
-                                                                "AI 回复失败: " + throwable.getMessage(),
-                                                                ChatHistoryMessageTypeEnum.AI.getValue(),
-                                                                loginUser.getId());
-                          });
+        // 调用消息执行器
+        return streamHandlerExecutor.doExecute(contentFlux, chatHistoryService, appId, loginUser, codeGenTypeEnum);
     }
 
     @Override
