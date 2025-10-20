@@ -9,6 +9,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import com.wolfhouse.yuaicodemother.core.AiCodeGeneratorFacade;
+import com.wolfhouse.yuaicodemother.core.builder.VueProjectBuilder;
 import com.wolfhouse.yuaicodemother.core.handler.StreamHandlerExecutor;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
@@ -23,12 +24,14 @@ import com.wolfhouse.yuaicodemother.model.vo.AppVO;
 import com.wolfhouse.yuaicodemother.model.vo.UserVO;
 import com.wolfhouse.yuaicodemother.service.AppService;
 import com.wolfhouse.yuaicodemother.service.ChatHistoryService;
+import com.wolfhouse.yuaicodemother.service.ScreenShotService;
 import com.wolfhouse.yuaicodemother.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,6 +58,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private final ChatHistoryService chatHistoryService;
     private final AiCodeGeneratorFacade aiCodeGeneratorFacade;
     private final StreamHandlerExecutor streamHandlerExecutor;
+    private final VueProjectBuilder vueProjectBuilder;
+    private final ScreenShotService screenShotService;
 
     @Override
     public QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest) {
@@ -199,6 +204,16 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         if (Files.notExists(sourceDirPath) || !Files.isDirectory(sourceDirPath)) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "应用代码路径不存在");
         }
+        // Vue 项目特殊处理：执行构建
+        if (CodeGenTypeEnum.VUE_PROJECT.getValue()
+                                       .equals(codeGenType)) {
+            boolean buildSuccess = vueProjectBuilder.buildProject(sourceDirPath.toString());
+            ThrowUtils.throwIf(!buildSuccess, ErrorCode.SYSTEM_ERROR, "Vue 项目构建失败，请重试");
+            // 检查 dist 是否存在
+            File distDir = new File(sourceDirPath.toString(), "dist");
+            ThrowUtils.throwIf(!distDir.exists(), ErrorCode.SYSTEM_ERROR, "Vue 项目构建成功但未生成 dist");
+            sourceDirPath = Path.of(distDir.getAbsolutePath());
+        }
 
         // 复制文件到部署目录
         Path deployDirPath = Path.of(AppConstant.CODE_DEPLOY_ROOT_DIR, deployKey);
@@ -214,8 +229,29 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         boolean res = this.updateById(app);
         ThrowUtils.throwIf(!res, ErrorCode.OPERATION_ERROR, "更新应用失败");
         // 返回可访问的 URL 地址
-        return Path.of(AppConstant.CODE_DEPLOY_HOST, deployKey)
-                   .toString();
+        String deployUrl = Path.of(AppConstant.CODE_DEPLOY_HOST, deployKey)
+                               .toString();
+        // 异步生成截图并更新封面
+        generateAppScreenShotAsync(appId, deployUrl);
+        return deployUrl;
+    }
+
+    /**
+     * 异步生成应用程序截图并更新数据库中的封面信息。
+     *
+     * @param appId  应用程序的唯一标识符，用于标识需要更新封面的应用程序
+     * @param appUrl 应用程序对应的网址，用于生成截图
+     */
+    @Override
+    public void generateAppScreenShotAsync(Long appId, String appUrl) {
+        Thread.startVirtualThread(() -> {
+            // 调用截图并上传
+            String screenshotUrl = screenShotService.generateAndUploadScreenshot(appUrl);
+            // 更新数据库封面
+            App app = mapper.selectOneById(appId);
+            app.setCover(screenshotUrl);
+            ThrowUtils.throwIf(!this.updateById(app), ErrorCode.OPERATION_ERROR, "更新封面失败" + appId);
+        });
     }
 
     /**

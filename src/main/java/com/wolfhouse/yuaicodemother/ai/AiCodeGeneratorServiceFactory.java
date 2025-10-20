@@ -89,7 +89,7 @@ public class AiCodeGeneratorServiceFactory {
             .builder()
             .id(appId)
             .chatMemoryStore(redisChatMemoryStore)
-            .maxMessages(20)
+            .maxMessages(30)
             .build();
         // 从数据库中加载对话历史到记忆中
         chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);
