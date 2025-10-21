@@ -17,12 +17,13 @@ import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
 import com.wolfhouse.yuaicodemother.model.dto.app.*;
 import com.wolfhouse.yuaicodemother.model.entity.App;
 import com.wolfhouse.yuaicodemother.model.entity.User;
-import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
 import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;
 import com.wolfhouse.yuaicodemother.service.AppService;
+import com.wolfhouse.yuaicodemother.service.ProjectDownloadService;
 import com.wolfhouse.yuaicodemother.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,7 @@ public class AppController {
 
     private final AppService appService;
     private final UserService userService;
+    private final ProjectDownloadService projectDownloadService;
 
     // region 用户操作
 
@@ -97,6 +100,42 @@ public class AppController {
 
 
     /**
+     * 下载应用代码
+     *
+     * @param appId    应用ID
+     * @param request  请求
+     * @param response 响应
+     */
+    @GetMapping("/download/{appId}")
+    public void downloadAppCode(@PathVariable Long appId,
+                                HttpServletRequest request,
+                                HttpServletResponse response) {
+        // 1. 基础校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+        // 2. 查询应用信息
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
+        // 3. 权限校验：只有应用创建者可以下载代码
+        User loginUser = userService.getLoginUser(request);
+        if (!app.getUserId()
+                .equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限下载该应用代码");
+        }
+        // 4. 构建应用代码目录路径（生成目录，非部署目录）
+        String codeGenType = app.getCodeGenType();
+        String sourceDirName = codeGenType + "_" + appId;
+        String sourceDirPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + sourceDirName;
+        // 5. 检查代码目录是否存在
+        File sourceDir = new File(sourceDirPath);
+        ThrowUtils.throwIf(!sourceDir.exists() || !sourceDir.isDirectory(),
+                           ErrorCode.NOT_FOUND_ERROR, "应用代码不存在，请先生成代码");
+        // 6. 生成下载文件名（不建议添加中文内容）
+        String downloadFileName = String.valueOf(appId);
+        // 7. 调用通用下载服务
+        projectDownloadService.downloadProjectAsZip(sourceDirPath, downloadFileName, response);
+    }
+
+    /**
      * 创建应用
      *
      * @param appAddRequest 创建请求
@@ -108,28 +147,8 @@ public class AppController {
                                      HttpServletRequest request) {
         ThrowUtils.throwIf(appAddRequest == null, ErrorCode.PARAMS_ERROR);
 
-        App app = new App();
-        BeanUtil.copyProperties(appAddRequest, app);
 
-        // 参数校验
-        appService.validApp(app, true);
-
-        // 获取登录用户
-        User loginUser = userService.getLoginUser(request);
-        app.setUserId(loginUser.getId());
-        // 暂时为 initPrompt 的前 12 位
-        app.setAppName(app.getInitPrompt()
-                          .length() > 12 ?
-                       app.getInitPrompt()
-                          .substring(0, 12) :
-                       app.getInitPrompt());
-        // 文件生成模式
-        app.setCodeGenType(CodeGenTypeEnum.VUE_PROJECT.getValue());
-
-        // 保存
-        boolean result = appService.save(app);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(app.getId());
+        return ResultUtils.success(appService.createApp(appAddRequest, request));
     }
 
     /**
@@ -260,7 +279,7 @@ public class AppController {
      * @return 分页结果
      */
     @PostMapping("/good/list/page/vo")
-    public BaseResponse<Page<AppVO>> listFeaturedAppVoByPage(@RequestBody AppQueryRequest appQueryRequest) {
+    public BaseResponse<Page<AppVO>> listGoodAppVoByPage(@RequestBody AppQueryRequest appQueryRequest) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
 
         long pageNum = appQueryRequest.getPageNum();
@@ -339,7 +358,7 @@ public class AppController {
      */
     @PostMapping("/admin/list/page/vo")
     @AuthCheck(hasRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<AppVO>> listAppVoByPageAdmin(@RequestBody AppQueryRequest appQueryRequest) {
+    public BaseResponse<Page<AppVO>> listAppVoByPageByAdmin(@RequestBody AppQueryRequest appQueryRequest) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
 
         long pageNum = appQueryRequest.getPageNum();

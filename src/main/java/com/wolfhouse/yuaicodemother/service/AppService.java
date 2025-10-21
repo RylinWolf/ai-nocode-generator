@@ -2,10 +2,12 @@ package com.wolfhouse.yuaicodemother.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import com.wolfhouse.yuaicodemother.model.dto.app.AppAddRequest;
 import com.wolfhouse.yuaicodemother.model.dto.app.AppQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.App;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;
+import jakarta.servlet.http.HttpServletRequest;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -33,9 +35,30 @@ public interface AppService extends IService<App> {
      */
     void validApp(App app, boolean add);
 
+    /**
+     * 获取应用 VO 对象
+     *
+     * @param app 应用实体
+     * @return 应用 VO 对象
+     */
     AppVO getAppVo(App app);
 
+    /**
+     * 获取应用 VO 对象列表
+     *
+     * @param appList 应用实体列表
+     * @return 应用 VO 对象列表
+     */
     List<AppVO> getAppVOList(List<App> appList);
+
+    /**
+     * 创建新应用
+     *
+     * @param appAddRequest 应用创建请求
+     * @param request       HTTP 请求对象
+     * @return 新创建的应用 ID
+     */
+    Long createApp(AppAddRequest appAddRequest, HttpServletRequest request);
 
     /**
      * 通过对话生成应用代码

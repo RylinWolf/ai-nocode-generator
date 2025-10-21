@@ -33,7 +33,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public BaseResponse<Long> register(@RequestBody UserRegisterRequest request) {
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         String userAccount = request.getUserAccount();
         String userPassword = request.getUserPassword();
@@ -43,8 +43,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public BaseResponse<UserLoginVo> login(@RequestBody UserLoginRequest request,
-                                           HttpServletRequest httpServletRequest) {
+    public BaseResponse<UserLoginVo> userLogin(@RequestBody UserLoginRequest request,
+                                               HttpServletRequest httpServletRequest) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         UserLoginVo userLoginVo = userService.userLogin(request.getUserAccount(),
                                                         request.getUserPassword(),
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public BaseResponse<Boolean> logout(HttpServletRequest httpServletRequest) {
+    public BaseResponse<Boolean> userLogout(HttpServletRequest httpServletRequest) {
         return ResultUtils.success(userService.logout(httpServletRequest));
     }
 

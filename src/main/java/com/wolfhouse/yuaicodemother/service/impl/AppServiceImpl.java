@@ -7,6 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.wolfhouse.yuaicodemother.ai.AiCodeGenTypeRoutingService;
 import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import com.wolfhouse.yuaicodemother.core.AiCodeGeneratorFacade;
 import com.wolfhouse.yuaicodemother.core.builder.VueProjectBuilder;
@@ -15,6 +16,7 @@ import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
 import com.wolfhouse.yuaicodemother.mapper.AppMapper;
+import com.wolfhouse.yuaicodemother.model.dto.app.AppAddRequest;
 import com.wolfhouse.yuaicodemother.model.dto.app.AppQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.App;
 import com.wolfhouse.yuaicodemother.model.entity.User;
@@ -26,6 +28,7 @@ import com.wolfhouse.yuaicodemother.service.AppService;
 import com.wolfhouse.yuaicodemother.service.ChatHistoryService;
 import com.wolfhouse.yuaicodemother.service.ScreenShotService;
 import com.wolfhouse.yuaicodemother.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -60,6 +63,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private final StreamHandlerExecutor streamHandlerExecutor;
     private final VueProjectBuilder vueProjectBuilder;
     private final ScreenShotService screenShotService;
+    private final AiCodeGenTypeRoutingService routingService;
 
     @Override
     public QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest) {
@@ -141,6 +145,34 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                           return appVO;
                       })
                       .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long createApp(AppAddRequest appAddRequest, HttpServletRequest request) {
+        App app = new App();
+        BeanUtil.copyProperties(appAddRequest, app);
+
+        // 参数校验
+        this.validApp(app, true);
+
+        // 获取登录用户
+        User loginUser = userService.getLoginUser(request);
+        app.setUserId(loginUser.getId());
+        // 暂时为 initPrompt 的前 12 位
+        String initPrompt = app.getInitPrompt();
+        app.setAppName(initPrompt
+                           .length() > 12 ?
+                       initPrompt
+                           .substring(0, 12) :
+                       initPrompt);
+        // 通过 AI 智能选择代码生成类型
+        CodeGenTypeEnum genType = routingService.routeCodeGenType(initPrompt);
+        app.setCodeGenType(genType.getValue());
+
+        // 保存
+        boolean result = save(app);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return app.getId();
     }
 
     @Override
