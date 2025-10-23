@@ -1,10 +1,13 @@
 package com.wolfhouse.yuaicodemother.ai.tools;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.json.JSONObject;
 import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.ToolMemoryId;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +22,30 @@ import java.nio.file.StandardOpenOption;
  * @author rylinwolf
  */
 @Slf4j
-public class FileWriteTool {
+@Component
+public class FileWriteTool extends BaseTool {
+    @Override
+    public String getToolName() {
+        return "writeFile";
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "写入文件";
+    }
+
+    @Override
+    public String generateToolExecutedResult(JSONObject arguments) {
+        String relativeFilePath = arguments.getStr("relativeFilePath");
+        String content = arguments.getStr("content");
+        String suffix = FileUtil.getSuffix(relativeFilePath);
+        return String.format("""
+                                 [工具调用] 写入文件 %s
+                                 ```%s
+                                 %s
+                                 ```
+                                 """, relativeFilePath, suffix, content);
+    }
 
     @Tool("写入文件到指定路径")
     public String writeFile(

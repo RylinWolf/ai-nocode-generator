@@ -27,7 +27,7 @@ public abstract class AbstractCodeFileSaverTemplate<T> {
      * @return 文件路径
      */
     protected String buildUniqueDir(Long appId) {
-        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(appId == null || appId < 0, ErrorCode.PARAMS_ERROR);
         String bizType = getCodeType().getValue();
         String dirPath = Path.of(FILE_SAVE_ROOT_DIR,
                                  bizType + "_" + appId)

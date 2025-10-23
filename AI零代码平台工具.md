@@ -281,4 +281,11 @@ HtmlCodeResult generateCode(@MemoryId Long id, @UserMessage String userMessage);
 可以选择工具调用的方案，因为 Langchain4j 本身就支持 AI 多次调用工具，
 相当于已经实现了最基本的 Agent 多步骤执行。
 
+# AI 工作流
+
+- 方案选型
+- LangGraph4j 入门
+- 核心工作流开发
+- LangGraph4j 工作流特性实战
+
 

@@ -2,7 +2,7 @@ package com.wolfhouse.yuaicodemother.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.wolfhouse.yuaicodemother.ai.tools.FileWriteTool;
+import com.wolfhouse.yuaicodemother.ai.tools.ToolManager;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
@@ -35,6 +35,7 @@ public class AiCodeGeneratorServiceFactory {
     private final RedisChatMemoryStore redisChatMemoryStore;
     private final ChatHistoryService chatHistoryService;
     private final ChatModel chatModel;
+    private final ToolManager toolManager;
     /**
      * AI 服务实例缓存
      * 缓存策略：
@@ -100,7 +101,7 @@ public class AiCodeGeneratorServiceFactory {
                 return AiServices.builder(AiCodeGeneratorService.class)
                                  .streamingChatModel(reasoningStreamingChatModel)
                                  .chatMemoryProvider((id) -> chatMemory)
-                                 .tools(new FileWriteTool())
+                                 .tools((Object[]) toolManager.getAllTools())
                                  // 处理工具调用幻觉问题
                                  .hallucinatedToolNameStrategy(toolExecutionRequest ->
                                                                    ToolExecutionResultMessage.from(
