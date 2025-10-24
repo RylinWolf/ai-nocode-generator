@@ -6,8 +6,6 @@ import cn.hutool.json.JSONUtil;
 import com.wolfhouse.yuaicodemother.ai.model.message.*;
 import com.wolfhouse.yuaicodemother.ai.tools.BaseTool;
 import com.wolfhouse.yuaicodemother.ai.tools.ToolManager;
-import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
-import com.wolfhouse.yuaicodemother.core.builder.VueProjectBuilder;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.enums.ChatHistoryMessageTypeEnum;
 import com.wolfhouse.yuaicodemother.service.ChatHistoryService;
@@ -16,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,7 +27,6 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 public class JsonMessageStreamHandler {
-    private final VueProjectBuilder vueProjectBuilder;
     private final ToolManager toolManager;
 
     /**
@@ -64,10 +60,9 @@ public class JsonMessageStreamHandler {
                                                   aiResponse,
                                                   ChatHistoryMessageTypeEnum.AI.getValue(),
                                                   loginUser.getId());
-                String projectPath = Path.of(AppConstant.CODE_OUTPUT_ROOT_DIR, "vue_project_" + appId)
-                                         .toString();
+
                 // 异步构造项目
-                vueProjectBuilder.buildProjectAsync(projectPath);
+//                vueProjectBuilder.buildProjectAsync(projectPath);
             })
             .doOnError(error -> {
                 // 如果AI回复失败，也要记录错误消息

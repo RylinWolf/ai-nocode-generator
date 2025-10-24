@@ -6,6 +6,8 @@ import com.wolfhouse.yuaicodemother.ai.AiCodeGeneratorServiceFactory;
 import com.wolfhouse.yuaicodemother.ai.model.message.AiResponseMessage;
 import com.wolfhouse.yuaicodemother.ai.model.message.ToolExecutedMessage;
 import com.wolfhouse.yuaicodemother.ai.model.message.ToolRequestMessage;
+import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
+import com.wolfhouse.yuaicodemother.core.builder.VueProjectBuilder;
 import com.wolfhouse.yuaicodemother.core.parser.CodeParserExecutor;
 import com.wolfhouse.yuaicodemother.core.saver.CodeFileSaverExecutor;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * AI 代码生成门面类，组合代码生成和保存功能
@@ -31,6 +34,7 @@ import java.io.File;
 @Service
 public class AiCodeGeneratorFacade {
     private final AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+    private final VueProjectBuilder vueProjectBuilder;
 
     /**
      * 根据用户提供的信息生成代码并将其保存到文件中。
@@ -77,7 +81,7 @@ public class AiCodeGeneratorFacade {
                                                  CodeGenTypeEnum.MULTI_FILE, appId);
             case VUE_PROJECT -> {
                 TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processCodeStream(processTokenStream(tokenStream),
+                yield processCodeStream(processTokenStream(tokenStream, appId),
                                         CodeGenTypeEnum.MULTI_FILE, appId);
             }
 
@@ -91,9 +95,10 @@ public class AiCodeGeneratorFacade {
      * （适配器模式）
      *
      * @param tokenStream 输入的 TokenStream 对象。
+     * @param appId       应用 ID
      * @return 处理后的字符串流。
      */
-    private Flux<String> processTokenStream(TokenStream tokenStream) {
+    private Flux<String> processTokenStream(TokenStream tokenStream, Long appId) {
         return Flux.create(sink -> {
             tokenStream.onPartialResponse((String partialResponse) -> {
                            AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
@@ -108,6 +113,10 @@ public class AiCodeGeneratorFacade {
                            sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
                        })
                        .onCompleteResponse((ChatResponse response) -> {
+                           // 同步构建 vue 项目
+                           String projectPath = Path.of(AppConstant.CODE_OUTPUT_ROOT_DIR, "vue_project_" + appId)
+                                                    .toString();
+                           vueProjectBuilder.buildProjectAsync(projectPath);
                            sink.complete();
                        })
                        .onError((Throwable error) -> {
