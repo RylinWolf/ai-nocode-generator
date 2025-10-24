@@ -7,17 +7,17 @@ import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
 import com.wolfhouse.yuaicodemother.service.ChatHistoryService;
+import com.wolfhouse.yuaicodemother.utils.SpringContextUtil;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.service.AiServices;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,7 +34,6 @@ import java.time.Duration;
 public class AiCodeGeneratorServiceFactory {
     private final RedisChatMemoryStore redisChatMemoryStore;
     private final ChatHistoryService chatHistoryService;
-    private final ChatModel chatModel;
     private final ToolManager toolManager;
     /**
      * AI 服务实例缓存
@@ -55,19 +54,8 @@ public class AiCodeGeneratorServiceFactory {
                         cause);
                 })
                 .build();
-    private StreamingChatModel reasoningStreamingChatModel;
-    private StreamingChatModel streamingChatModel;
-
-    @Autowired
-    public void setChatModel(@Qualifier("openAiStreamingChatModel") StreamingChatModel chatModel) {
-        this.streamingChatModel = chatModel;
-    }
-
-    @Autowired
-    public void setReasoningStreamingChatModel(
-        @Qualifier("reasoningStreamingChatModel") StreamingChatModel reasoningStreamingChatModel) {
-        this.reasoningStreamingChatModel = reasoningStreamingChatModel;
-    }
+    @Resource(name = "openAiChatModel")
+    private ChatModel chatModel;
 
     /**
      * 根据 appId 获取服务（带缓存）
@@ -98,6 +86,10 @@ public class AiCodeGeneratorServiceFactory {
         switch (genType) {
             // Vue 项目生成，使用工具调用和推理模型
             case VUE_PROJECT -> {
+                // 使用多例的 StreamingChatModel 解决并发问题
+                var reasoningStreamingChatModel = SpringContextUtil.getBean(
+                    "reasoningStreamingChatModelPrototype",
+                    StreamingChatModel.class);
                 return AiServices.builder(AiCodeGeneratorService.class)
                                  .streamingChatModel(reasoningStreamingChatModel)
                                  .chatMemoryProvider((id) -> chatMemory)
@@ -112,6 +104,9 @@ public class AiCodeGeneratorServiceFactory {
             }
             // 普通调用
             case HTML, MULTI_FILE -> {
+                // 使用多例的 StreamingChatModel 解决并发问题
+                var streamingChatModel = SpringContextUtil.getBean("streamingChatModelPrototype",
+                                                                   StreamingChatModel.class);
                 return AiServices.builder(AiCodeGeneratorService.class)
                                  .chatModel(chatModel)
                                  .streamingChatModel(streamingChatModel)

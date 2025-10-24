@@ -12,4 +12,6 @@
 - 如果需要内容相关图片，调用 searchContentImages 搜索图片
 - 如果需要装饰性插画，调用 searchIllustrations 搜索插画
 
-你必须按照 JSON 格式输出！
+### 注意
+- 你必须按照 JSON 格式输出！
+- 不要输出无关的业务代码

@@ -7,7 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import com.wolfhouse.yuaicodemother.ai.AiCodeGenTypeRoutingService;
+import com.wolfhouse.yuaicodemother.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.wolfhouse.yuaicodemother.common.constant.AppConstant;
 import com.wolfhouse.yuaicodemother.core.AiCodeGeneratorFacade;
 import com.wolfhouse.yuaicodemother.core.builder.VueProjectBuilder;
@@ -63,7 +63,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private final StreamHandlerExecutor streamHandlerExecutor;
     private final VueProjectBuilder vueProjectBuilder;
     private final ScreenShotService screenShotService;
-    private final AiCodeGenTypeRoutingService routingService;
+    private final AiCodeGenTypeRoutingServiceFactory routingServiceFactory;
 
     @Override
     public QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest) {
@@ -165,8 +165,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                        initPrompt
                            .substring(0, 12) :
                        initPrompt);
-        // 通过 AI 智能选择代码生成类型
-        CodeGenTypeEnum genType = routingService.routeCodeGenType(initPrompt);
+        // 通过 AI 智能选择代码生成类型(多例模式)
+        CodeGenTypeEnum genType = routingServiceFactory.createAiCodeGenTypeRoutingService()
+                                                       .routeCodeGenType(initPrompt);
         app.setCodeGenType(genType.getValue());
 
         // 保存

@@ -1,6 +1,6 @@
 package com.wolfhouse.yuaicodemother.langgraph4j.node;
 
-import com.wolfhouse.yuaicodemother.ai.AiCodeGenTypeRoutingService;
+import com.wolfhouse.yuaicodemother.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.wolfhouse.yuaicodemother.langgraph4j.state.WorkflowContext;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
 import com.wolfhouse.yuaicodemother.utils.SpringContextUtil;
@@ -20,11 +20,13 @@ public class RouterNode {
 
             CodeGenTypeEnum generationType;
             try {
-                // 获取AI路由服务
-                AiCodeGenTypeRoutingService routingService =
-                    SpringContextUtil.getBean(AiCodeGenTypeRoutingService.class);
+                // 获取AI路由服务工厂，通过工厂获取 AI 路由服务实例(多例)
+                AiCodeGenTypeRoutingServiceFactory routingServiceFactory =
+                    SpringContextUtil.getBean(AiCodeGenTypeRoutingServiceFactory.class);
                 // 根据原始提示词进行智能路由
-                generationType = routingService.routeCodeGenType(context.getOriginalPrompt());
+                generationType =
+                    routingServiceFactory.createAiCodeGenTypeRoutingService()
+                                         .routeCodeGenType(context.getOriginalPrompt());
                 log.info("AI智能路由完成，选择类型: {} ({})", generationType.getValue(), generationType.getText());
             } catch (Exception e) {
                 log.error("AI智能路由失败，使用默认HTML类型: {}", e.getMessage());
