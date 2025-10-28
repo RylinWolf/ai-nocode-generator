@@ -12,6 +12,7 @@ spring:
       password: 123456
       ttl: 3600
       username: default
+      database: 0
   # session 配置
   session:
     redis:

@@ -19,6 +19,8 @@ import com.wolfhouse.yuaicodemother.model.entity.App;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;
+import com.wolfhouse.yuaicodemother.ratelimiter.anno.RateLimit;
+import com.wolfhouse.yuaicodemother.ratelimiter.enums.RateLimitType;
 import com.wolfhouse.yuaicodemother.service.AppService;
 import com.wolfhouse.yuaicodemother.service.ProjectDownloadService;
 import com.wolfhouse.yuaicodemother.service.UserService;
@@ -56,6 +58,7 @@ public class AppController {
     // region 用户操作
 
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rateInterval = 60, rate = 5)
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
                                                        @RequestParam String message,
                                                        HttpServletRequest request) {

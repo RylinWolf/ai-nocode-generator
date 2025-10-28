@@ -2,6 +2,7 @@ package com.wolfhouse.yuaicodemother.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.wolfhouse.yuaicodemother.ai.guardrail.PromptSafetyInputGuardrail;
 import com.wolfhouse.yuaicodemother.ai.tools.ToolManager;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
@@ -100,6 +101,12 @@ public class AiCodeGeneratorServiceFactory {
                                                                        toolExecutionRequest,
                                                                        "错误：没有该名称的工具 " +
                                                                        toolExecutionRequest.name()))
+                                 // 添加护轨
+                                 .inputGuardrails(new PromptSafetyInputGuardrail())
+                                 // 为了流式输出，这里不使用输出护轨
+//                                 .outputGuardrails(new RetryOutputGuardrail())
+                                 // 最大连续调用工具次数
+                                 .maxSequentialToolsInvocations(20)
                                  .build();
             }
             // 普通调用
@@ -111,6 +118,8 @@ public class AiCodeGeneratorServiceFactory {
                                  .chatModel(chatModel)
                                  .streamingChatModel(streamingChatModel)
                                  .chatMemory(chatMemory)
+                                 // 添加护轨
+                                 .inputGuardrails(new PromptSafetyInputGuardrail())
                                  .build();
             }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的生成类型: " + genType);
