@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: yu-ai-code-screenshot
+server:
+  port: 8127
+  servlet:
+    context-path: /api
