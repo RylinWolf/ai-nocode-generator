@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.common.annotation;
+package com.wolfhouse.yuaicodemother.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

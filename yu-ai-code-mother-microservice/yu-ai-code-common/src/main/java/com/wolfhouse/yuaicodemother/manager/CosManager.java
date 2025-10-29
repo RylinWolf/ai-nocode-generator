@@ -3,9 +3,10 @@ package com.wolfhouse.yuaicodemother.manager;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;
-import com.wolfhouse.yuaicodemother.config.CosClientConfig;
+import com.wolfhouse.yuaicodemother.utils.config.CosClientConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.io.File;
 @Component
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnBean(CosClientConfig.class)
 public class CosManager {
     private final CosClientConfig config;
     private final COSClient cosClient;

@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.common.constant;
+package com.wolfhouse.yuaicodemother.constant;
 
 /**
  * @author linexsong

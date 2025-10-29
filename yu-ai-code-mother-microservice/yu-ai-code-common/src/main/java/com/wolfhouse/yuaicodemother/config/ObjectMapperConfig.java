@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.config;
+package com.wolfhouse.yuaicodemother.utils.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
