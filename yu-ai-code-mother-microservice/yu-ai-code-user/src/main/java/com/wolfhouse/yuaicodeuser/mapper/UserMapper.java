@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.mapper;
+package com.wolfhouse.yuaicodeuser.mapper;
 
 import com.mybatisflex.core.BaseMapper;
 import com.wolfhouse.yuaicodemother.model.entity.User;

@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.service;
+package com.wolfhouse.yuaicodeuser.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;

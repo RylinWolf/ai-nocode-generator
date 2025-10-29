@@ -1,12 +1,12 @@
-package com.wolfhouse.yuaicodemother.controller;
+package com.wolfhouse.yuaicodeuser.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.mybatisflex.core.paginate.Page;
+import com.wolfhouse.yuaicodemother.annotation.AuthCheck;
 import com.wolfhouse.yuaicodemother.common.BaseResponse;
 import com.wolfhouse.yuaicodemother.common.DeleteRequest;
 import com.wolfhouse.yuaicodemother.common.ResultUtils;
-import com.wolfhouse.yuaicodemother.common.annotation.AuthCheck;
-import com.wolfhouse.yuaicodemother.common.constant.UserConstant;
+import com.wolfhouse.yuaicodemother.constant.UserConstant;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
 import com.wolfhouse.yuaicodemother.exception.ThrowUtils;
@@ -14,7 +14,7 @@ import com.wolfhouse.yuaicodemother.model.dto.user.*;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.vo.UserLoginVo;
 import com.wolfhouse.yuaicodemother.model.vo.UserVO;
-import com.wolfhouse.yuaicodemother.service.UserService;
+import com.wolfhouse.yuaicodeuser.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

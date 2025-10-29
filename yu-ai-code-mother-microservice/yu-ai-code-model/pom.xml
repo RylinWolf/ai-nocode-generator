@@ -22,6 +22,36 @@
             <artifactId>yu-ai-code-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.mybatis-flex</groupId>
+            <artifactId>mybatis-flex-spring-boot3-starter</artifactId>
+            <version>1.11.0</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                        <path>
+                            <groupId>com.mybatis-flex</groupId>
+                            <artifactId>mybatis-flex-processor</artifactId>
+                            <version>1.11.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

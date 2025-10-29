@@ -1,24 +1,25 @@
-package com.wolfhouse.yuaicodemother.service.impl;
+package com.wolfhouse.yuaicodeuser.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import com.wolfhouse.yuaicodemother.common.constant.UserConstant;
+import com.wolfhouse.yuaicodemother.constant.UserConstant;
 import com.wolfhouse.yuaicodemother.exception.BusinessException;
 import com.wolfhouse.yuaicodemother.exception.ErrorCode;
-import com.wolfhouse.yuaicodemother.mapper.UserMapper;
-import com.wolfhouse.yuaicodemother.model.dto.user.UserQueryRequest;
 import com.wolfhouse.yuaicodemother.model.entity.User;
+import com.wolfhouse.yuaicodeuser.mapper.UserMapper;
+import com.wolfhouse.yuaicodemother.model.dto.user.UserQueryRequest;
 import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import com.wolfhouse.yuaicodemother.model.vo.UserLoginVo;
 import com.wolfhouse.yuaicodemother.model.vo.UserVO;
-import com.wolfhouse.yuaicodemother.service.UserService;
+import com.wolfhouse.yuaicodeuser.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import static com.wolfhouse.yuaicodemother.model.entity.table.UserTableDef.USER;
+
 
 /**
  * 用户 服务层实现。
