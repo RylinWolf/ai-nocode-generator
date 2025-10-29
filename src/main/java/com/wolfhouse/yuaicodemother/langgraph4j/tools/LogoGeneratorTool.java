@@ -42,7 +42,8 @@ public class LogoGeneratorTool {
                                                            .model(imageModel)
                                                            .prompt(logoPrompt)
                                                            .size("512*512")
-                                                           .n(1) // 生成 1 张足够，因为 AI 不知道哪张最好
+                                                           // 生成 1 张足够，因为 AI 不知道哪张最好
+                                                           .n(1)
                                                            .build();
             ImageSynthesis imageSynthesis = new ImageSynthesis();
             ImageSynthesisResult result = imageSynthesis.call(param);

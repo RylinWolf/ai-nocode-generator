@@ -28,3 +28,12 @@ server:
     session:
       cookie:
         max-age: 2592000
+# 监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

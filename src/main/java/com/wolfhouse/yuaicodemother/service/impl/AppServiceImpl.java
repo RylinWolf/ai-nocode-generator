@@ -24,6 +24,8 @@ import com.wolfhouse.yuaicodemother.model.enums.ChatHistoryMessageTypeEnum;
 import com.wolfhouse.yuaicodemother.model.enums.CodeGenTypeEnum;
 import com.wolfhouse.yuaicodemother.model.vo.AppVO;
 import com.wolfhouse.yuaicodemother.model.vo.UserVO;
+import com.wolfhouse.yuaicodemother.monitor.MonitorContext;
+import com.wolfhouse.yuaicodemother.monitor.MonitorContextHolder;
 import com.wolfhouse.yuaicodemother.service.AppService;
 import com.wolfhouse.yuaicodemother.service.ChatHistoryService;
 import com.wolfhouse.yuaicodemother.service.ScreenShotService;
@@ -203,11 +205,18 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         chatHistoryService.addChatMessage(appId, userMessage, ChatHistoryMessageTypeEnum.USER.getValue(),
                                           loginUser.getId());
 
+        // 设置监控上下文
+        MonitorContextHolder.setContext(MonitorContext.builder()
+                                                      .appId(appId.toString())
+                                                      .userId(loginUser.getId()
+                                                                       .toString())
+                                                      .build());
         // 调用 AI 生成
         Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(userMessage, codeGenTypeEnum, appId);
 
         // 调用消息执行器
-        return streamHandlerExecutor.doExecute(contentFlux, chatHistoryService, appId, loginUser, codeGenTypeEnum);
+        return streamHandlerExecutor.doExecute(contentFlux, chatHistoryService, appId, loginUser, codeGenTypeEnum)
+                                    .doFinally((signalType) -> MonitorContextHolder.clearContext());
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class ServeDeployService {
 
     private static final String CODE_BASE_DIR = "/temp/deploy";
-    private static final int SERVE_PORT = 3000;
+    private static final int SERVE_PORT = 3001;
     private static Process serveProcess;
 
     /**
