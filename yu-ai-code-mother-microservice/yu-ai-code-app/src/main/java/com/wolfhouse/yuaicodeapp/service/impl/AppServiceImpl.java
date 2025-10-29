@@ -31,6 +31,8 @@ import com.wolfhouse.yuaicodemother.model.vo.UserVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -64,20 +66,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private final StreamHandlerExecutor streamHandlerExecutor;
     private final VueProjectBuilder vueProjectBuilder;
     private final AiCodeGenTypeRoutingServiceFactory routingServiceFactory;
+
+    @DubboReference
     private InnerScreenshotService screenShotService;
+    @DubboReference
     private InnerUserService userService;
 
-    @Autowired
-    @Lazy
-    public void setUserService(InnerUserService innerUserService) {
-        this.userService = innerUserService;
-    }
-
-    @Autowired
-    @Lazy
-    public void setScreenShotService(InnerScreenshotService screenShotService) {
-        this.screenShotService = screenShotService;
-    }
 
     @Override
     public QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest) {

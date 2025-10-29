@@ -1,7 +1,31 @@
 spring:
   application:
     name: yu-ai-code-screenshot
+  profiles:
+    active: local
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ai_code_mother?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123
+
 server:
   port: 8127
   servlet:
     context-path: /api
+
+# Dubbo
+dubbo:
+  registry:
+    address: nacos://127.0.0.1:8848?username=nacos&password=nacos
+    register-mode: instance
+  protocol:
+    name: tri
+    port: 50052
+  consumer:
+    timeout: 120000
+  provider:
+    timeout: 120000
+
+

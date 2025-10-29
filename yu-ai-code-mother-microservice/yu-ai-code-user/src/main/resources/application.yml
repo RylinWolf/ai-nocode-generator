@@ -9,16 +9,15 @@ spring:
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/yu_ai_code_mother
+    url: jdbc:mysql://localhost:3306/ai_code_mother?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password: 123456
-  # redis
+    password: 123
   data:
     redis:
       host: localhost
       port: 6379
       database: 0
-      password:
+      password: 123456
   profiles:
     active: local
 server:
@@ -33,9 +32,24 @@ server:
 springdoc:
   group-configs:
     - group: 'default'
-      packages-to-scan: com.wolfhouse.yuaicodemother.controller
+      packages-to-scan: com.wolfhouse.yuaicodeuser.controller
 # knife4j
 knife4j:
   enable: true
   setting:
     language: zh_cn
+
+# Dubbo
+dubbo:
+  registry:
+    address: nacos://127.0.0.1:8848?username=nacos&password=nacos
+    register-mode: instance
+  protocol:
+    name: tri
+    port: 50051
+  consumer:
+    timeout: 60000
+  provider:
+    timeout: 60000
+  application:
+    qos-port: 22221

@@ -7,6 +7,7 @@ import com.wolfhouse.yuaicodemother.innerservice.InnerUserService;
 import com.wolfhouse.yuaicodemother.model.entity.User;
 import com.wolfhouse.yuaicodemother.model.enums.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,14 +24,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 @RequiredArgsConstructor
 public class AuthInterceptor {
-    private InnerUserService userService;
-
-    @Autowired
-    @Lazy
-    public void setUserService(InnerUserService userService) {
-        this.userService = userService;
-    }
-
     /**
      * 拦截方法，检查注解标注的方法是否符合权限要求。
      *

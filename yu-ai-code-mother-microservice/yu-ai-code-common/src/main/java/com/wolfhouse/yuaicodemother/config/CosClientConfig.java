@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "cos.client")
 @Data
 @ConditionalOnProperty(prefix = "cos.client",
-                       name = {"host", "secretId", "secretKey", "region", "bucket"})
+                       name = {"host", "region", "bucket"})
 public class CosClientConfig {
 
     /**
