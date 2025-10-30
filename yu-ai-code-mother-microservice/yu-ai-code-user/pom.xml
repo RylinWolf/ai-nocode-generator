@@ -18,6 +18,12 @@
     </properties>
 
     <dependencies>
+        <!-- 监控 -->
+        <dependency>
+            <groupId>com.wolfhouse</groupId>
+            <artifactId>yu-ai-code-monitor</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!-- Dubbo -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>

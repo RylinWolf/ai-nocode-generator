@@ -25,6 +25,7 @@ spring:
       database: 0
       password: 123456
       ttl: 3600
+      username: default
 
 server:
   port: 8125
@@ -63,3 +64,13 @@ dubbo:
     timeout: 120000
   application:
     qos-port: 22223
+
+# prometheus
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

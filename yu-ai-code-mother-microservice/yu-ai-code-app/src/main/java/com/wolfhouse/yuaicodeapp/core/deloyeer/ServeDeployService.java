@@ -1,4 +1,4 @@
-package com.wolfhouse.yuaicodemother.service.impl;
+package com.wolfhouse.yuaicodeapp.core.deloyeer;
 
 import org.springframework.stereotype.Service;
 

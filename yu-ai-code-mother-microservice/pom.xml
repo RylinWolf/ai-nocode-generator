@@ -16,6 +16,7 @@
         <module>yu-ai-code-app</module>
         <module>yu-ai-code-ai</module>
         <module>yu-ai-code-screenshot</module>
+        <module>yu-ai-code-monitor</module>
     </modules>
 
     <properties>
@@ -58,6 +59,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- 用于监控 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>

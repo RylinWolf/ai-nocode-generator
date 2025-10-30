@@ -1,5 +1,6 @@
 package com.wolfhouse.yuaicodemother.ai.config;
 
+import com.wolfhouse.yuaicodemother.monitor.AiModelMonitorListener;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import lombok.Data;
@@ -7,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+
+import java.util.List;
 
 /**
  * @author linexsong
@@ -31,7 +34,7 @@ public class ReasoningStreamingChatModelConfig {
      */
     @Bean
     @Scope("prototype")
-    public StreamingChatModel reasoningStreamingChatModelPrototype() {
+    public StreamingChatModel reasoningStreamingChatModelPrototype(AiModelMonitorListener listener) {
         return OpenAiStreamingChatModel.builder()
                                        .apiKey(apiKey)
                                        .baseUrl(baseUrl)
@@ -40,6 +43,7 @@ public class ReasoningStreamingChatModelConfig {
                                        .temperature(temperature)
                                        .logRequests(true)
                                        .logResponses(true)
+                                       .listeners(List.of(listener))
                                        .build();
     }
 }

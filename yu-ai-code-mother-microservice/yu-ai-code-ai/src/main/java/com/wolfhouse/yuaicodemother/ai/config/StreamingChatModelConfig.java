@@ -1,12 +1,16 @@
 package com.wolfhouse.yuaicodemother.ai.config;
 
+import com.wolfhouse.yuaicodemother.monitor.AiModelMonitorListener;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import jakarta.annotation.Resource;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+
+import java.util.List;
 
 /**
  * 流式对话模型配置
@@ -25,9 +29,11 @@ public class StreamingChatModelConfig {
     private boolean logRequests;
     private boolean logResponses;
 
+    @Resource
+    private AiModelMonitorListener aiModelMonitorListener;
 
     /**
-     * 推理流式模型（用于 Vue 生成）
+     * 推理流式模型（用于 Html/Multi Html 多例生成）
      *
      * @return 流式推理模型
      */
@@ -42,6 +48,7 @@ public class StreamingChatModelConfig {
                                        .temperature(temperature)
                                        .logRequests(true)
                                        .logResponses(true)
+                                       .listeners(List.of(aiModelMonitorListener))
                                        .build();
     }
 }

@@ -1,6 +1,5 @@
-package com.wolfhouse.yuaicodemother.config;
+package com.wolfhouse.yuaicodeapp.core.deloyeer;
 
-import com.wolfhouse.yuaicodemother.service.impl.ServeDeployService;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
