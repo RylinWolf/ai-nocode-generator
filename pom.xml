@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.wolfhouse</groupId>
-    <artifactId>yu-ai-code-mother</artifactId>
+    <artifactId>ai_nocode</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>yu-ai-code-mother</name>
     <description>yu-ai-code-mother</description>

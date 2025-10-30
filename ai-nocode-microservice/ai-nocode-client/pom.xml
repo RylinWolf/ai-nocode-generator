@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.wolfhouse</groupId>
-        <artifactId>yu-ai-code-mother-microservice</artifactId>
+        <artifactId>ai-nocode-microservice</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>yu-ai-code-monitor</artifactId>
+    <artifactId>ai-nocode-client</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -18,11 +18,15 @@
     </properties>
 
     <dependencies>
-        <!-- LangChain4j -->
         <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
-            <version>1.1.0-beta7</version>
+            <groupId>com.wolfhouse</groupId>
+            <artifactId>ai-nocode-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wolfhouse</groupId>
+            <artifactId>ai-nocode-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

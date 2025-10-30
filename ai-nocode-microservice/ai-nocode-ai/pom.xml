@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.wolfhouse</groupId>
-        <artifactId>yu-ai-code-mother-microservice</artifactId>
+        <artifactId>ai-nocode-microservice</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>yu-ai-code-ai</artifactId>
+    <artifactId>ai-nocode-ai</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -20,7 +20,7 @@
         <!-- 监控 -->
         <dependency>
             <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-monitor</artifactId>
+            <artifactId>ai-nocode-monitor</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <!-- LangChain4j -->
@@ -41,12 +41,12 @@
         </dependency>
         <dependency>
             <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-model</artifactId>
+            <artifactId>ai-nocode-model</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-common</artifactId>
+            <artifactId>ai-nocode-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

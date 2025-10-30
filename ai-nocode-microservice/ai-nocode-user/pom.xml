@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.wolfhouse</groupId>
-        <artifactId>yu-ai-code-mother-microservice</artifactId>
+        <artifactId>ai-nocode-microservice</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>yu-ai-code-app</artifactId>
+    <artifactId>ai-nocode-user</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -21,7 +21,7 @@
         <!-- 监控 -->
         <dependency>
             <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-monitor</artifactId>
+            <artifactId>ai-nocode-microservice</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <!-- Dubbo -->
@@ -34,16 +34,12 @@
             <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Redisson for distributed rate limiting -->
         <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson</artifactId>
-            <version>3.50.0</version>
+            <groupId>com.wolfhouse</groupId>
+            <artifactId>ai-nocode-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
+
         <!-- Spring Session + Redis -->
         <dependency>
             <groupId>org.springframework.session</groupId>
@@ -77,22 +73,12 @@
         </dependency>
         <dependency>
             <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-common</artifactId>
+            <artifactId>ai-nocode-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-ai</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wolfhouse</groupId>
-            <artifactId>yu-ai-code-client</artifactId>
+            <artifactId>ai-nocode-model</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

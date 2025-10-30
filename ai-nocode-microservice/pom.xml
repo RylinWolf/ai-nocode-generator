@@ -5,18 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.wolfhouse</groupId>
-    <artifactId>yu-ai-code-mother-microservice</artifactId>
+    <artifactId>ai-nocode-microservice</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>yu-ai-code-common</module>
-        <module>yu-ai-code-model</module>
-        <module>yu-ai-code-client</module>
-        <module>yu-ai-code-user</module>
-        <module>yu-ai-code-app</module>
-        <module>yu-ai-code-ai</module>
-        <module>yu-ai-code-screenshot</module>
-        <module>yu-ai-code-monitor</module>
+        <module>ai-nocode-common</module>
+        <module>ai-nocode-model</module>
+        <module>ai-nocode-client</module>
+        <module>ai-nocode-user</module>
+        <module>ai-nocode-app</module>
+        <module>ai-nocode-ai</module>
+        <module>ai-nocode-screenshot</module>
+        <module>ai-nocode-monitor</module>
     </modules>
 
     <properties>
