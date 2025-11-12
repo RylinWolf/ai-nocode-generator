@@ -198,6 +198,196 @@ flowchart TD
 
 
 
+## 运行轨迹
+
+本块内容为业务核心方法（即 登录用户调用 AI 生成项目）的 从用户请求、封装请求、AI 生成响应 到 封装响应、返回前端 的全流程分析。
+
+### 完整链路
+
+完整的 业务链路包括如下步骤：
+
+1. 前端请求创建 APP 接口
+
+   1. 后端创建 APP
+
+   2. 存储首个用户提示词（初始化提示词）
+
+   3. 根据提示词生成 App 名称
+
+   4. 返回 App 视图
+
+2. 前端携带 APP ID，访问生成代码接口
+
+   1. 后端调用服务生成业务代码
+
+   2. Controller 层调用并处理 Service 返回的流
+
+      1. 将分块进行处理，转换为 Json 格式，以解决空格丢失的问题
+
+      2. 通过 `concatWith` 在流结束时，发送结束事件，告知前端
+
+         ```java
+         flux.map(分块处理)
+             .concatWith(Mono.just(
+              // 发送结束事件
+              ServerSentEvent.<String>builder()
+                             .event("done")
+                             .data("")
+                             .build()));
+         ```
+
+   3. Service 层调用 AI 生成，对 AI 流进行一系列操作
+
+      1. 根据初始提示词获取 AI 生成模式
+      2. 保存用户消息到数据库
+      3. 设置监控上下文（用于 Prometheus）
+      4. 调用 AI 生成服务，其内部根据不同生成模式，对流进行不同的处理。其职责为生成代码并保存生成结果（及构建 vue 项目）。
+         - 对于 HTML、多文件原生模式，只是保存输出结果到 StringBuilder，并在执行完毕后通过代码解析器解析，最后通过保存器保存文件
+         - 对于 Vue 模式，使用 Langchain4j 的 TokenStream 接收并处理 AI 返回流，将返回内容封装。为后续处理，还需要将 TokenStream 封装为 Flux 流并返回。
+      5. 调用消息执行器，其内部根据不同模式进行不同处理，返回流。其职责为收集 AI 响应结果并在结束后添加消息到对话历史。
+         - Vue 模式较为特殊。在上一步中，对 Vue 的 AI 响应进行了封装，此时需要根据不同 AI 响应类型进行不同操作。
+         - 对于普通 AI 响应，直接拼接并返回响应内容
+         - 对于工具调用请求，若是第一次调用指定工具，则记录并返回工具信息，否则返回空
+         - 对于工具调用结果，获取工具调用结果并拼接到历史内容，返回调用结果
+      6. 清空监控上下文（防止内存占用）
+
+
+
+### 用户请求
+
+项目将 “从【用户在首页输入要求并点击生成】到【AI 开始生成】” 之间的流程归为 ”用户请求“。
+
+首先，前端携带用户提示词，请求创建 APP 接口。该接口职责如下：
+
+1. 参数校验
+
+2. 创建 APP，构建内部信息，设置作者、初始提示词、根据提示词生成 App 名称
+
+3. 调用 **AI 路由服务**（下文会介绍），根据用户提示词给出 生成模式（Html、MultiFile、Vue 三者其中的一个）。设置给 App 对象。
+   1. 通过 AI 路由服务工厂获取 AI 路由服务
+   2. 调用 AI 路由服务的 获取生成模式方法
+
+4. 保存 App，返回 AppId
+
+
+
+在获得 App ID 后，前端携带用户提示词与 AppId 访问通用的 ”生成代码“ 接口。该接口职责如下：
+
+1. 校验参数
+
+2. 获取登录用户，调用 Service 的生成代码，得到 AI 响应流
+
+3. 对响应流进行处理并返回。
+
+   1. 将每个响应分块打包为 json，以防丢失空格等
+
+   2. 在响应结束后，发送结束事件
+
+      ```java
+              return contentFlux.map(chunk -> {
+              // 打包为 JSON
+              Map<String, String> map = Map.of("d", chunk);
+              String jsonStr = JSONUtil.toJsonStr(map);
+              return ServerSentEvent.<String>builder()
+                                    .data(jsonStr)
+                                    .build();
+          })
+          .concatWith(Mono.just(
+              // 发送结束事件
+              ServerSentEvent.<String>builder()
+                             .event("done")
+                             .data("")
+                             .build()));
+      ```
+
+      
+
+### AI 请求与响应处理
+
+在前端请求生成代码之后，需要调用 Service 的 AI 生成代码方法，同时对方法返回的响应流进行处理。这个过程归为 ” AI 请求与响应处理“ 阶段。
+
+首先，前端请求生成代码后，Controller 会调用 Service 的 AI 生成代码方法。该方法接收 appId，用户消息 以及登录用户。该方法返回 Flux 流。
+
+1. 参数校验
+
+2. 获取应用信息并校验权限
+
+3. 保存消息到历史消息数据库，包括 appId、消息类型（USER、AI）、用户 ID
+
+4. 设置监控上下文，将 appId、用户 Id 保存至监控上下文，用于 Prometheus 的监控
+
+5. 调用 **AI 门面类**（下文会介绍）的生成并保存代码方法，传入 appId、用户消息及生成类型。门面类将会进行以下操作：
+
+   1. 通过 AI 服务工厂，根据 appId 获取相应的 AI 服务
+
+   2. 对于原生生成模式，收集响应的信息，并在流结束时拼接全部信息，使用解析器解析代码，使用保存器保存文件。
+
+   3. 对于 Vue 生成模式，返回新的流，流内部通过 TokenStream 处理不同请求，并**封装为不同对象**（下文会介绍）
+
+      - onPartialResponse：处理普通的 AI 响应信息，封装为 AiResponseMessage 并推送
+      - onPartialToolExecutionRequest：处理工具调用请求，封装为 ToolRequestMessage 并推送
+      - onToolExecuted：处理工具调用结果请求，封装为 ToolExecution 并推送
+      - onCompleteResponse：流结束，构建 vue 项目，发布流结束事件
+      - onError：异常处理
+
+      ```java
+      return Flux.create(sink -> {
+             tokenStream.onPartialResponse((String partialResponse) -> {sink.next(封装结果);})
+                        .onPartialToolExecutionRequest((index, toolExecutionRequest) -> {sink.next(封装结果);})
+                        .onToolExecuted((ToolExecution toolExecution) -> {sink.next(封装结果);})
+                        .onCompleteResponse((ChatResponse response) -> {
+                            // 构建 vue 项目
+                           vueProjectBuilder.buildProjectAsync(projectPath);
+                            // 发布流结束事件
+                            sink.complete();})
+                        .onError((Throwable error) -> {
+                          // 异常处理
+                            sink.error(error);})
+                        // 开始监听
+                        .start();
+              });
+      ```
+
+   4. 由于 Vue 项目构建时，会进行工具调用，因此无需再解析、保存代码文件。
+
+6. 调用消息执行器，传入 AI 响应流、对话历史服务、appId、登录用户、生成类型，用于保存 AI 生成的消息到对话历史中。对于 Vue 项目，由于之前进行了消息封装，这里需要特殊处理。
+
+   1. 解析每个 Json 消息块，根据不同的类型转为不同字符串，并拼接
+   2. 对解析的字符串进行处理，过滤空字符串
+   3. 流响应完成后，添加完整 AI 消息到对话历史
+
+
+
+## 实现细节
+
+### AI 路由服务工厂
+
+
+
+### AI 路由服务
+
+
+
+### AI 门面类
+
+
+
+### AI 服务工厂
+
+
+
+### AI 服务
+
+
+
+### 响应封装类
+
+
+
+### 监控（Prometheus）
+
+
+
 # 应用模块
 
 ## 需求分析

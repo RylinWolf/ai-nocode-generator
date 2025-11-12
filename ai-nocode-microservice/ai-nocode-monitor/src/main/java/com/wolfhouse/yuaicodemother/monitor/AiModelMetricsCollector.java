@@ -69,14 +69,13 @@ public class AiModelMetricsCollector {
                                  String tokenType, long tokenCount) {
         String key = String.format("%s_%s_%s_%s", userId, appId, modelName, tokenType);
         Counter counter = tokenCountersCache.computeIfAbsent(key, k ->
-                                                                 Counter.builder("ai_model_tokens_total")
-                                                                        .description("AI模型Token消耗总数")
-                                                                        .tag("user_id", userId)
-                                                                        .tag("app_id", appId)
-                                                                        .tag("model_name", modelName)
-                                                                        .tag("token_type", tokenType)
-                                                                        .register(meterRegistry)
-                                                            );
+            Counter.builder("ai_model_tokens_total")
+                   .description("AI模型Token消耗总数")
+                   .tag("user_id", userId)
+                   .tag("app_id", appId)
+                   .tag("model_name", modelName)
+                   .tag("token_type", tokenType)
+                   .register(meterRegistry));
         counter.increment(tokenCount);
     }
 

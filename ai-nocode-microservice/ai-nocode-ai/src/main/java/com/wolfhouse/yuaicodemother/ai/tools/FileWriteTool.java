@@ -53,8 +53,7 @@ public class FileWriteTool extends BaseTool {
         String relativeFilePath,
         @P("要写入文件的内容")
         String content,
-        @ToolMemoryId Long appId
-                           ) {
+        @ToolMemoryId Long appId) {
         try {
             Path path = Paths.get(relativeFilePath);
             if (!path.isAbsolute()) {
